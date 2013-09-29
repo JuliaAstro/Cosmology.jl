@@ -59,12 +59,43 @@ function a2E(c::Union(ClosedLCDM,OpenLCDM), a::Float64)
     sqrt(c.Ω_r + c.Ω_m*a + (c.Ω_k + c.Ω_Λ*a2)*a2)
 end
 
+for c in ("Flat", "Open", "Closed")
+    @eval begin
+        immutable $(symbol("$(c)WCDM")) <: $(symbol("Abstract$(c)Cosmology"))
+            h::Float64
+            Ω_k::Float64
+            Ω_Λ::Float64
+            Ω_m::Float64
+            Ω_r::Float64
+            w0::Float64
+            wa::Float64
+        end
+    end
+end
+
+function WCDM(h::Float64, Ω_k::Float64, Ω_Λ::Float64, Ω_m::Float64, Ω_r::Float64, w0::Float64, wa::Float64)
+    if Ω_k < 0
+        ClosedWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
+    elseif Ω_k > 0
+        OpenWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
+    else
+        FlatWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
+    end
+end
+
+function a2E(c::Union(FlatWCDM,ClosedWCDM,OpenWCDM), a::Float64)
+    ade = exp((1.0 - 3.0*(c.w0 + c.wa))*log(a) + 3.0*c.wa*(a - 1.0))
+    sqrt(c.Ω_r + (c.Ω_m + c.Ω_k*a)*a + c.Ω_Λ*ade)
+end
+
 function cosmology(;h=0.7,
                    Neff=3.04,
                    OmegaK=0,
                    OmegaM=0.3,
                    OmegaR=nothing,
-                   Tcmb=2.7255)
+                   Tcmb=2.7255,
+                   w0=-1,
+                   wa=0)
 
     if OmegaR === nothing
         OmegaG = 4.48131e-7*Tcmb^4/h^2
@@ -73,6 +104,11 @@ function cosmology(;h=0.7,
     end
 
     OmegaL = 1. - OmegaK - OmegaM - OmegaR
+
+    if !(w0 == -1 && wa == 0)
+        return WCDM(float64(h), float64(OmegaK), float64(OmegaL),
+                    float64(OmegaM), float64(OmegaR), float64(w0), float64(wa))
+    end
 
     if OmegaK < 0
         return ClosedLCDM(h, OmegaK, OmegaL, OmegaM, OmegaR)

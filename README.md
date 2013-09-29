@@ -43,6 +43,14 @@ which takes the following options:
     <td>Neff = 3.04</td>
     <td>Effective number of massless neutrino species, used to compute Ω<sub>ν</sub></td>
   </tr>
+  <tr>
+    <td>w0 = -1</td>
+    <td>CPL dark energy equation of state, w = w0 + wa*(1-a)</td>
+  </tr>
+  <tr>
+    <td>wa = 0</td>
+    <td>CPL dark energy equation of state, w = w0 + wa*(1-a)</td>
+  </tr>
 </table>
 
 ```jlcon
