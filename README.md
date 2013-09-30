@@ -20,7 +20,7 @@ which takes the following options:
 
 <table>
   <tr>
-    <td>h = 0.7</td>
+    <td>h = 0.69</td>
     <td>Dimensionless Hubble constant</td>
   </tr>
   <tr>
@@ -28,7 +28,7 @@ which takes the following options:
     <td>Curvature density, Ω<sub>k</sub></td>
   </tr>
   <tr>
-    <td>OmegaM = 0.3</td>
+    <td>OmegaM = 0.29</td>
     <td>Matter density, Ω<sub>m</sub></td>
   </tr>
   <tr>
@@ -54,11 +54,16 @@ which takes the following options:
 </table>
 
 ```jlcon
+julia> using Cosmology
+
 julia> c = cosmology()
-FlatLCDM(0.7,0.6999146929857499,0.3,8.530701425005273e-5)
+FlatLCDM(0.69,0.7099122024007928,0.29,8.779759920715362e-5)
 
 julia> c = cosmology(OmegaK=0.1)
-OpenLCDM(0.7,0.1,0.5999146929857501,0.3,8.530701425005273e-5)
+OpenLCDM(0.69,0.1,0.6099122024007929,0.29,8.779759920715362e-5)
+
+julia> c = cosmology(w0=-0.9, OmegaK=-0.1)
+ClosedWCDM(0.69,-0.1,0.8099122024007929,0.29,8.779759920715362e-5,-0.9,0.0)
 ```
 
 Distances
@@ -87,10 +92,10 @@ Distances
 julia> using Cosmology
 
 julia> c = cosmology(OmegaM=0.26)
-FlatLCDM(0.7,0.739914695489689,0.26,8.530451031095114e-5)
+FlatLCDM(0.69,0.7399122024007928,0.26,8.779759920715362e-5)
 
 julia> angular_diameter_dist_mpc(c, 1.2)
-1758.5291281199122
+1784.0089227105118
 ```
 
 Times
@@ -111,9 +116,9 @@ Times
 julia> using Cosmology
 
 julia> c = cosmology(OmegaM=0.26)
-FlatLCDM(0.7,0.739914695489689,0.26,8.530451031095114e-5)
+FlatLCDM(0.69,0.7399122024007928,0.26,8.779759920715362e-5)
 
 julia> age_gyr(c, 1.2)
-5.367964753127867
+5.445600787626434
 ```
 
