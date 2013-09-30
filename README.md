@@ -66,12 +66,16 @@ Distances
 
 <table>
   <tr>
-    <td>angular_diameter_dist_mpc(cosmo, z)</td>
+    <td>angular_diameter_dist_mpc(cosmo,&nbsp;z)</td>
     <td>Ratio of an object's proper transverse size (in Mpc) to its angular size (in radians)</td>
   </tr>
   <tr>
-    <td>comoving_radial_dist_mpc(cosmo, z)</td>
+    <td>comoving_radial_dist_mpc(cosmo,&nbsp;z)</td>
     <td>Comoving radial distance to redshift z, in Mpc</td>
+  </tr>
+  <tr>
+    <td>comoving_volume_gpc3(cosmo,&nbsp;z)</td>
+    <td>Comoving volume out to redshift z, in Gpc<sup>3</sup></td>
   </tr>
   <tr>
     <td>luminosity_dist_mpc(cosmo, z)</td>

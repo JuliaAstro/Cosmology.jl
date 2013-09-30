@@ -5,6 +5,7 @@ export cosmology,
        angular_diameter_dist_mpc,
        comoving_radial_dist_mpc,
        comoving_transverse_dist_mpc,
+       comoving_volume_gpc3,
        H,
        hubble_dist_mpc,
        hubble_time_gyr,
@@ -153,6 +154,26 @@ angular_diameter_dist_mpc(c::AbstractCosmology, z) =
 
 luminosity_dist_mpc(c::AbstractCosmology, z) =
     comoving_transverse_dist_mpc(c, z)*(1 + z)
+
+# volumes
+
+comoving_volume_gpc3(c::AbstractFlatCosmology, z) =
+    (4pi/3)*(comoving_radial_dist_mpc(c,z)*1e-3)^3
+function comoving_volume_gpc3(c::AbstractOpenCosmology, z)
+    DH = hubble_dist_mpc0(c)
+    x = comoving_transverse_dist_mpc(c,z)/DH
+    sqrtok = sqrt(c.Ω_k)
+    2pi*(DH*1e-3)^3*(x*sqrt(1. + c.Ω_k*x^2) - asinh(sqrtok*x)/sqrtok)/c.Ω_k
+end
+function comoving_volume_gpc3(c::AbstractClosedCosmology, z)
+    DH = hubble_dist_mpc0(c)
+    x = comoving_transverse_dist_mpc(c,z)/DH
+    sqrtok = sqrt(abs(c.Ω_k))
+    2pi*(DH*1e-3)^3*(x*sqrt(1. + c.Ω_k*x^2) - asin(sqrtok*x)/sqrtok)/c.Ω_k
+end
+
+comoving_volume_element_gpc3(c::AbstractCosmology, z) =
+    1e-9*hubble_dist_mpc0(c,z)*angular_diameter_dist_mpc(c,z)^2/a2E(c,scale_factor(z))
 
 # times
 

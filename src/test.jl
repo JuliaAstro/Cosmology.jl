@@ -25,6 +25,7 @@ age_rtol = 2e-4
 c = cosmology(h=0.7, OmegaM=0.3, OmegaR=0)
 @test_approx_eq_rtol angular_diameter_dist_mpc(c,1) 1651.9145 dist_rtol
 @test_approx_eq_rtol comoving_radial_dist_mpc(c,1) 3303.829 dist_rtol
+@test_approx_eq_rtol comoving_volume_gpc3(c,1) 151.0571 dist_rtol
 @test_approx_eq_rtol luminosity_dist_mpc(c,1) 6607.6579 dist_rtol
 @test_approx_eq_rtol age_gyr(c,0) 13.4694 age_rtol
 @test_approx_eq_rtol age_gyr(c,1) 5.7527 age_rtol
@@ -33,6 +34,7 @@ c = cosmology(h=0.7, OmegaM=0.3, OmegaR=0)
 c = cosmology(h=0.7, OmegaK=0.1, OmegaM=0.3, OmegaR=0)
 @test_approx_eq_rtol angular_diameter_dist_mpc(c,1) 1619.9588 dist_rtol
 @test_approx_eq_rtol comoving_radial_dist_mpc(c,1) 3209.784 dist_rtol
+@test_approx_eq_rtol comoving_volume_gpc3(c,1) 140.0856 dist_rtol
 @test_approx_eq_rtol luminosity_dist_mpc(c,1) 6479.8352 dist_rtol
 @test_approx_eq_rtol age_gyr(c,0) 13.064 age_rtol
 @test_approx_eq_rtol age_gyr(c,1) 5.5466 age_rtol
@@ -41,6 +43,7 @@ c = cosmology(h=0.7, OmegaK=0.1, OmegaM=0.3, OmegaR=0)
 c = cosmology(h=0.7, OmegaK=-0.1, OmegaM=0.3, OmegaR=0)
 @test_approx_eq_rtol angular_diameter_dist_mpc(c,1) 1686.5272 dist_rtol
 @test_approx_eq_rtol comoving_radial_dist_mpc(c,1) 3408.937 dist_rtol
+@test_approx_eq_rtol comoving_volume_gpc3(c,1) 163.8479 dist_rtol
 @test_approx_eq_rtol luminosity_dist_mpc(c,1) 6746.1088 dist_rtol
 @test_approx_eq_rtol age_gyr(c,0) 13.925 age_rtol
 @test_approx_eq_rtol age_gyr(c,1) 5.9868 age_rtol
@@ -49,6 +52,7 @@ c = cosmology(h=0.7, OmegaK=-0.1, OmegaM=0.3, OmegaR=0)
 c = cosmology(h=0.7, OmegaM=0.3, OmegaR=0, w0=-0.9, wa=0.1)
 @test_approx_eq_rtol angular_diameter_dist_mpc(c,1) 1612.0585 dist_rtol
 @test_approx_eq_rtol comoving_radial_dist_mpc(c,1) 3224.1169 dist_rtol
+@test_approx_eq_rtol comoving_volume_gpc3(c,1) 140.3851 dist_rtol
 @test_approx_eq_rtol luminosity_dist_mpc(c,1) 6448.2338 dist_rtol
 @test_approx_eq_rtol age_gyr(c,0) 13.1915 age_rtol
 @test_approx_eq_rtol age_gyr(c,1) 5.6464 age_rtol
@@ -57,6 +61,7 @@ c = cosmology(h=0.7, OmegaM=0.3, OmegaR=0, w0=-0.9, wa=0.1)
 c = cosmology(h=0.7, OmegaK=0.1, OmegaM=0.3, OmegaR=0, w0=-0.9, wa=0.1)
 @test_approx_eq_rtol angular_diameter_dist_mpc(c,1) 1588.0181 dist_rtol
 @test_approx_eq_rtol comoving_radial_dist_mpc(c,1) 3147.6227 dist_rtol
+@test_approx_eq_rtol comoving_volume_gpc3(c,1) 132.0466 dist_rtol
 @test_approx_eq_rtol luminosity_dist_mpc(c,1) 6352.0723 dist_rtol
 @test_approx_eq_rtol age_gyr(c,0) 12.8488 age_rtol
 @test_approx_eq_rtol age_gyr(c,1) 5.4659 age_rtol
@@ -65,6 +70,7 @@ c = cosmology(h=0.7, OmegaK=0.1, OmegaM=0.3, OmegaR=0, w0=-0.9, wa=0.1)
 c = cosmology(h=0.7, OmegaK=-0.1, OmegaM=0.3, OmegaR=0, w0=-0.9, wa=0.1)
 @test_approx_eq_rtol angular_diameter_dist_mpc(c,1) 1637.5993 dist_rtol
 @test_approx_eq_rtol comoving_radial_dist_mpc(c,1) 3307.9932 dist_rtol
+@test_approx_eq_rtol comoving_volume_gpc3(c,1) 149.8301 dist_rtol
 @test_approx_eq_rtol luminosity_dist_mpc(c,1) 6550.3973 dist_rtol
 @test_approx_eq_rtol age_gyr(c,0) 13.5702 age_rtol
 @test_approx_eq_rtol age_gyr(c,1) 5.8482 age_rtol
