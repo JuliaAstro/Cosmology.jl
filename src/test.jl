@@ -2,8 +2,8 @@ using Cosmology
 using Base.Test
 
 function test_approx_eq_rtol(va, vb, rtol, astr, bstr)
-    diff = max(abs(va - vb))
-    tol = rtol*max(max(abs(va)), max(abs(vb)))
+    diff = maximum(abs(va - vb))
+    tol = rtol*max(maximum(abs(va)), maximum(abs(vb)))
     if diff > tol
         sdiff = string("|", astr, " - ", bstr, "| <= ", tol)
         error("assertion failed: ", sdiff,
