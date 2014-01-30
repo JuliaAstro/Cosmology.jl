@@ -1,3 +1,4 @@
+include("Cosmology.jl")
 using Cosmology
 using Base.Test
 
