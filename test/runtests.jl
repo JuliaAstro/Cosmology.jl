@@ -1,4 +1,4 @@
-include("Cosmology.jl")
+include("../src/Cosmology.jl")
 using Cosmology
 using Base.Test
 
