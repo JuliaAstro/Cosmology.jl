@@ -6,11 +6,15 @@ Installation
 
 To install the package:
 
-    julia> Pkg.add("Cosmology")
+```jlcon
+julia> Pkg.add("Cosmology")
+```
 
 Then, to load into your session:
 
-    julia> using Cosmology
+```jlcon
+julia> using Cosmology
+```
 
 Cosmological Models
 -------------------
