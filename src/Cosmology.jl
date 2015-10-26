@@ -25,7 +25,7 @@ immutable FlatLCDM <: AbstractFlatCosmology
     Ω_r::Float64
 
     function FlatLCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real)
-        new(float64(h), float64(Ω_Λ), float64(Ω_m), float64(Ω_r))
+        new(Float64(h), Float64(Ω_Λ), Float64(Ω_m), Float64(Ω_r))
     end
 end
 
@@ -39,7 +39,7 @@ immutable ClosedLCDM <: AbstractClosedCosmology
     Ω_r::Float64
 
     function ClosedLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real)
-        new(float64(h), float64(Ω_k), float64(Ω_Λ), float64(Ω_m), float64(Ω_r))
+        new(Float64(h), Float64(Ω_k), Float64(Ω_Λ), Float64(Ω_m), Float64(Ω_r))
     end
 end
 
@@ -51,11 +51,11 @@ immutable OpenLCDM <: AbstractOpenCosmology
     Ω_r::Float64
 
     function OpenLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real)
-        new(float64(h), float64(Ω_k), float64(Ω_Λ), float64(Ω_m), float64(Ω_r))
+        new(Float64(h), Float64(Ω_k), Float64(Ω_Λ), Float64(Ω_m), Float64(Ω_r))
     end
 end
 
-function a2E(c::Union(ClosedLCDM,OpenLCDM), a::Float64)
+function a2E(c::Union{ClosedLCDM,OpenLCDM}, a::Float64)
     a2 = a*a
     sqrt(c.Ω_r + c.Ω_m*a + (c.Ω_k + c.Ω_Λ*a2)*a2)
 end
@@ -84,7 +84,7 @@ function WCDM(h::Float64, Ω_k::Float64, Ω_Λ::Float64, Ω_m::Float64, Ω_r::Fl
     end
 end
 
-function a2E(c::Union(FlatWCDM,ClosedWCDM,OpenWCDM), a::Float64)
+function a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a::Float64)
     ade = exp((1.0 - 3.0*(c.w0 + c.wa))*log(a) + 3.0*c.wa*(a - 1.0))
     sqrt(c.Ω_r + (c.Ω_m + c.Ω_k*a)*a + c.Ω_Λ*ade)
 end
@@ -107,8 +107,8 @@ function cosmology(;h=0.69,
     OmegaL = 1. - OmegaK - OmegaM - OmegaR
 
     if !(w0 == -1 && wa == 0)
-        return WCDM(float64(h), float64(OmegaK), float64(OmegaL),
-                    float64(OmegaM), float64(OmegaR), float64(w0), float64(wa))
+        return WCDM(Float64(h), Float64(OmegaK), Float64(OmegaL),
+                    Float64(OmegaM), Float64(OmegaR), Float64(w0), Float64(wa))
     end
 
     if OmegaK < 0
