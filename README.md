@@ -90,6 +90,10 @@ Distances
     <td>luminosity_dist_mpc(cosmo, z)</td>
     <td>Bolometric luminosity distance, in Mpc</td>
   </tr>
+  <tr>
+    <td>distmod(cosmo, z)</td>
+    <td>Distance modulus, in units of magnitude</td>
+  </tr>
 </table>
 
 ```jlcon
@@ -125,4 +129,3 @@ FlatLCDM(0.69,0.7399122024007928,0.26,8.779759920715362e-5)
 julia> age_gyr(c, 1.2)
 5.445600787626434
 ```
-
