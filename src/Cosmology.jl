@@ -157,7 +157,7 @@ luminosity_dist_mpc(c::AbstractCosmology, z) =
     comoving_transverse_dist_mpc(c, z)*(1 + z)
 
 distmod(c::AbstractCosmology, z) =
-    5.0 * log10(abs(luminosity_dist_mpc(c, z))) + 25.0
+    5.0 * log10(luminosity_dist_mpc(c, z)) + 25.0
 
 # volumes
 
