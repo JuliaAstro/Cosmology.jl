@@ -6,6 +6,7 @@ export cosmology,
        comoving_radial_dist_mpc,
        comoving_transverse_dist_mpc,
        comoving_volume_gpc3,
+       distmod,
        H,
        hubble_dist_mpc,
        hubble_time_gyr,
@@ -154,6 +155,9 @@ angular_diameter_dist_mpc(c::AbstractCosmology, z) =
 
 luminosity_dist_mpc(c::AbstractCosmology, z) =
     comoving_transverse_dist_mpc(c, z)*(1 + z)
+
+distmod(c::AbstractCosmology, z) =
+    5.0 * log10(luminosity_dist_mpc(c, z)) + 25.0
 
 # volumes
 
