@@ -82,3 +82,11 @@ c = cosmology(h=0.7, OmegaK=-0.1, OmegaM=0.3, OmegaR=0, w0=-0.9, wa=0.1)
 @test_approx_eq_rtol age_gyr(c,0) 13.5702 age_rtol
 @test_approx_eq_rtol age_gyr(c,1) 5.8482 age_rtol
 @test_approx_eq_rtol lookback_time_gyr(c,1) 13.5702-5.8482 age_rtol
+
+# Test that FlatLCDM works with non-Float64 (BigFloat in this example)
+c = cosmology(h=0.7, OmegaM=big(0.3), OmegaR=0)
+@test_approx_eq_rtol angular_diameter_dist_mpc(c,1) 1651.9145 dist_rtol
+
+# Test that FlatWCDM works with non-Float64 (BigFloat in this example)
+c = cosmology(h=big(0.7), OmegaM=0.3, OmegaR=0, w0=-0.9, wa=0.1)
+@test_approx_eq_rtol angular_diameter_dist_mpc(c,1) 1612.0585 dist_rtol

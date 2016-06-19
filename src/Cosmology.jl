@@ -19,42 +19,41 @@ abstract AbstractClosedCosmology <: AbstractCosmology
 abstract AbstractFlatCosmology <: AbstractCosmology
 abstract AbstractOpenCosmology <: AbstractCosmology
 
-immutable FlatLCDM <: AbstractFlatCosmology
-    h::Float64
-    Ω_Λ::Float64
-    Ω_m::Float64
-    Ω_r::Float64
-
-    function FlatLCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real)
-        new(Float64(h), Float64(Ω_Λ), Float64(Ω_m), Float64(Ω_r))
-    end
+immutable FlatLCDM{T<:Real} <: AbstractFlatCosmology
+    h::T
+    Ω_Λ::T
+    Ω_m::T
+    Ω_r::T
 end
+FlatLCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
+    FlatLCDM(promote(float(h), float(Ω_Λ), float(Ω_m), float(Ω_r))...)
+
 
 a2E(c::FlatLCDM, a::Float64) = sqrt(c.Ω_r + c.Ω_m*a + c.Ω_Λ*a^4)
 
-immutable ClosedLCDM <: AbstractClosedCosmology
-    h::Float64
-    Ω_k::Float64
-    Ω_Λ::Float64
-    Ω_m::Float64
-    Ω_r::Float64
-
-    function ClosedLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real)
-        new(Float64(h), Float64(Ω_k), Float64(Ω_Λ), Float64(Ω_m), Float64(Ω_r))
-    end
+immutable ClosedLCDM{T<:Real} <: AbstractClosedCosmology
+    h::T
+    Ω_k::T
+    Ω_Λ::T
+    Ω_m::T
+    Ω_r::T
 end
+ClosedLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
+    ClosedLCDM(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
+                       float(Ω_r))...)
 
-immutable OpenLCDM <: AbstractOpenCosmology
-    h::Float64
-    Ω_k::Float64
-    Ω_Λ::Float64
-    Ω_m::Float64
-    Ω_r::Float64
 
-    function OpenLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real)
-        new(Float64(h), Float64(Ω_k), Float64(Ω_Λ), Float64(Ω_m), Float64(Ω_r))
-    end
+immutable OpenLCDM{T<:Real} <: AbstractOpenCosmology
+    h::T
+    Ω_k::T
+    Ω_Λ::T
+    Ω_m::T
+    Ω_r::T
 end
+OpenLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
+    OpenLCDM(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
+                     float(Ω_r))...)
+
 
 function a2E(c::Union{ClosedLCDM,OpenLCDM}, a::Float64)
     a2 = a*a
@@ -62,20 +61,26 @@ function a2E(c::Union{ClosedLCDM,OpenLCDM}, a::Float64)
 end
 
 for c in ("Flat", "Open", "Closed")
+    name = symbol("$(c)WCDM")
     @eval begin
-        immutable $(symbol("$(c)WCDM")) <: $(symbol("Abstract$(c)Cosmology"))
-            h::Float64
-            Ω_k::Float64
-            Ω_Λ::Float64
-            Ω_m::Float64
-            Ω_r::Float64
-            w0::Float64
-            wa::Float64
+        immutable $(name){T<:Real} <: $(symbol("Abstract$(c)Cosmology"))
+            h::T
+            Ω_k::T
+            Ω_Λ::T
+            Ω_m::T
+            Ω_r::T
+            w0::T
+            wa::T
+        end
+        function $(name)(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real,
+                         w0::Real, wa::Real)
+            $(name)(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
+                            float(Ω_r), float(w0), float(wa))...)
         end
     end
 end
 
-function WCDM(h::Float64, Ω_k::Float64, Ω_Λ::Float64, Ω_m::Float64, Ω_r::Float64, w0::Float64, wa::Float64)
+function WCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real, w0::Real, wa::Real)
     if Ω_k < 0
         ClosedWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
     elseif Ω_k > 0
@@ -108,8 +113,7 @@ function cosmology(;h=0.69,
     OmegaL = 1. - OmegaK - OmegaM - OmegaR
 
     if !(w0 == -1 && wa == 0)
-        return WCDM(Float64(h), Float64(OmegaK), Float64(OmegaL),
-                    Float64(OmegaM), Float64(OmegaR), Float64(w0), Float64(wa))
+        return WCDM(h, OmegaK, OmegaL, OmegaM, OmegaR, w0, wa)
     end
 
     if OmegaK < 0
