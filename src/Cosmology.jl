@@ -1,5 +1,7 @@
 module Cosmology
 
+using Compat
+
 export cosmology,
        age_gyr,
        angular_diameter_dist_mpc,
@@ -61,9 +63,9 @@ function a2E(c::Union{ClosedLCDM,OpenLCDM}, a::Float64)
 end
 
 for c in ("Flat", "Open", "Closed")
-    name = symbol("$(c)WCDM")
+    name = Symbol("$(c)WCDM")
     @eval begin
-        immutable $(name){T<:Real} <: $(symbol("Abstract$(c)Cosmology"))
+        immutable $(name){T<:Real} <: $(Symbol("Abstract$(c)Cosmology"))
             h::T
             Ω_k::T
             Ω_Λ::T
