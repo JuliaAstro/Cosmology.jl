@@ -188,7 +188,7 @@ comoving_volume_element_gpc3(c::AbstractCosmology, z) =
 
 # times
 
-T(c::AbstractCosmology, a0::Float64, a1::Float64) = ((q,_) = QuadGK.quadgk(x::Float64->x/a2E(c,x), a0, a1); q)
+T(c::AbstractCosmology, a0, a1) = ((q,_) = QuadGK.quadgk(x->x/a2E(c,x), a0, a1); q)
 age_gyr(c::AbstractCosmology, z) = hubble_time_gyr0(c)*T(c, 0., scale_factor(z))
 lookback_time_gyr(c::AbstractCosmology, z) = hubble_time_gyr0(c)*T(c, scale_factor(z), 1.)
 
