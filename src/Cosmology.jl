@@ -1,6 +1,7 @@
 module Cosmology
 
 using Compat
+using QuadGK
 
 export cosmology,
        age_gyr,
@@ -16,10 +17,10 @@ export cosmology,
        lookback_time_gyr,
        scale_factor
 
-abstract AbstractCosmology
-abstract AbstractClosedCosmology <: AbstractCosmology
-abstract AbstractFlatCosmology <: AbstractCosmology
-abstract AbstractOpenCosmology <: AbstractCosmology
+@compat abstract type AbstractCosmology end
+@compat abstract type AbstractClosedCosmology <: AbstractCosmology end
+@compat abstract type AbstractFlatCosmology <: AbstractCosmology end
+@compat abstract type AbstractOpenCosmology <: AbstractCosmology end
 
 immutable FlatLCDM{T<:Real} <: AbstractFlatCosmology
     h::T
@@ -141,7 +142,7 @@ hubble_time_gyr(c::AbstractCosmology, z) = hubble_time_gyr0(c)/E(c,z)
 
 # distances
 
-Z(c::AbstractCosmology, z::Real) = ((q,_) = quadgk(a::Float64->1.0/a2E(c,a), scale_factor(z), 1); q)
+Z(c::AbstractCosmology, z::Real) = ((q,_) = QuadGK.quadgk(a::Float64->1.0/a2E(c,a), scale_factor(z), 1); q)
 
 comoving_radial_dist_mpc(c::AbstractCosmology, z) = hubble_dist_mpc0(c)*Z(c, z)
 
@@ -187,7 +188,7 @@ comoving_volume_element_gpc3(c::AbstractCosmology, z) =
 
 # times
 
-T(c::AbstractCosmology, a0::Float64, a1::Float64) = ((q,_) = quadgk(x::Float64->x/a2E(c,x), a0, a1); q)
+T(c::AbstractCosmology, a0::Float64, a1::Float64) = ((q,_) = QuadGK.quadgk(x::Float64->x/a2E(c,x), a0, a1); q)
 age_gyr(c::AbstractCosmology, z) = hubble_time_gyr0(c)*T(c, 0., scale_factor(z))
 lookback_time_gyr(c::AbstractCosmology, z) = hubble_time_gyr0(c)*T(c, scale_factor(z), 1.)
 
