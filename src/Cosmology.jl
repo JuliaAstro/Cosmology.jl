@@ -1,6 +1,5 @@
 module Cosmology
 
-using Compat
 using QuadGK
 
 export cosmology,
@@ -17,12 +16,12 @@ export cosmology,
        lookback_time_gyr,
        scale_factor
 
-@compat abstract type AbstractCosmology end
-@compat abstract type AbstractClosedCosmology <: AbstractCosmology end
-@compat abstract type AbstractFlatCosmology <: AbstractCosmology end
-@compat abstract type AbstractOpenCosmology <: AbstractCosmology end
+abstract type AbstractCosmology end
+abstract type AbstractClosedCosmology <: AbstractCosmology end
+abstract type AbstractFlatCosmology <: AbstractCosmology end
+abstract type AbstractOpenCosmology <: AbstractCosmology end
 
-immutable FlatLCDM{T<:Real} <: AbstractFlatCosmology
+struct FlatLCDM{T<:Real} <: AbstractFlatCosmology
     h::T
     Ω_Λ::T
     Ω_m::T
@@ -34,7 +33,7 @@ FlatLCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
 
 a2E(c::FlatLCDM, a::Float64) = sqrt(c.Ω_r + c.Ω_m*a + c.Ω_Λ*a^4)
 
-immutable ClosedLCDM{T<:Real} <: AbstractClosedCosmology
+struct ClosedLCDM{T<:Real} <: AbstractClosedCosmology
     h::T
     Ω_k::T
     Ω_Λ::T
@@ -46,7 +45,7 @@ ClosedLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
                        float(Ω_r))...)
 
 
-immutable OpenLCDM{T<:Real} <: AbstractOpenCosmology
+struct OpenLCDM{T<:Real} <: AbstractOpenCosmology
     h::T
     Ω_k::T
     Ω_Λ::T
@@ -66,7 +65,7 @@ end
 for c in ("Flat", "Open", "Closed")
     name = Symbol("$(c)WCDM")
     @eval begin
-        immutable $(name){T<:Real} <: $(Symbol("Abstract$(c)Cosmology"))
+        struct $(name){T<:Real} <: $(Symbol("Abstract$(c)Cosmology"))
             h::T
             Ω_k::T
             Ω_Λ::T
