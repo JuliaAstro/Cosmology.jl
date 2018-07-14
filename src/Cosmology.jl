@@ -101,12 +101,12 @@ function cosmology(;h=0.69,
                    Neff=3.04,
                    OmegaK=0,
                    OmegaM=0.29,
-                   OmegaR=nothing,
+                   OmegaR=NaN,
                    Tcmb=2.7255,
                    w0=-1,
                    wa=0)
 
-    if OmegaR === nothing
+    if isnan(OmegaR)
         OmegaG = 4.48131e-7*Tcmb^4/h^2
         OmegaN = Neff*OmegaG*(7/8)*(4/11)^(4/3)
         OmegaR = OmegaG + OmegaN
