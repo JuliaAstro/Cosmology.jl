@@ -1,5 +1,5 @@
 using Cosmology
-using Base.Test
+using Test
 
 function test_approx_eq_rtol(va, vb, rtol, astr, bstr)
     diff = maximum(abs(va - vb))
