@@ -3,19 +3,21 @@ __precompile__()
 module Cosmology
 
 using QuadGK
+using Unitful: km, s, ustrip
+using UnitfulAstro: Mpc, Gyr
 
 export cosmology,
-       age_gyr,
-       angular_diameter_dist_mpc,
-       comoving_radial_dist_mpc,
-       comoving_transverse_dist_mpc,
-       comoving_volume_gpc3,
+       age,
+       angular_diameter_dist,
+       comoving_radial_dist,
+       comoving_transverse_dist,
+       comoving_volume,
        distmod,
        H,
-       hubble_dist_mpc,
-       hubble_time_gyr,
-       luminosity_dist_mpc,
-       lookback_time_gyr,
+       hubble_dist,
+       hubble_time,
+       luminosity_dist,
+       lookback_time,
        scale_factor
 
 abstract type AbstractCosmology end
@@ -133,65 +135,84 @@ end
 
 scale_factor(z) = 1/(1 + z)
 E(c::AbstractCosmology, z) = (a = scale_factor(z); a2E(c,a)/a^2)
-H(c::AbstractCosmology, z) = 100. * c.h * E(c, z)
+H(c::AbstractCosmology, z) = 100. * c.h * E(c, z) * km / s / Mpc
 
-hubble_dist_mpc0(c::AbstractCosmology) = 2997.92458/c.h
-hubble_dist_mpc(c::AbstractCosmology, z) = hubble_dist_mpc0(c)/E(c,z)
+hubble_dist0(c::AbstractCosmology) = 2997.92458/c.h * Mpc
+hubble_dist(c::AbstractCosmology, z) = hubble_dist0(c)/E(c,z)
 
-hubble_time_gyr0(c::AbstractCosmology) = 9.77814/c.h
-hubble_time_gyr(c::AbstractCosmology, z) = hubble_time_gyr0(c)/E(c,z)
+hubble_time0(c::AbstractCosmology) = 9.77814/c.h * Gyr
+hubble_time(c::AbstractCosmology, z) = hubble_time0(c)/E(c,z)
 
 # distances
 
 Z(c::AbstractCosmology, z::Real; kws...) =
     QuadGK.quadgk(a::Float64->1.0/a2E(c,a), scale_factor(z), 1; kws...)[1]
 
-comoving_radial_dist_mpc(c::AbstractCosmology, z; kws...) = hubble_dist_mpc0(c)*Z(c, z; kws...)
+comoving_radial_dist(c::AbstractCosmology, z; kws...) = hubble_dist0(c)*Z(c, z; kws...)
 
-comoving_transverse_dist_mpc(c::AbstractFlatCosmology, z; kws...) =
-    comoving_radial_dist_mpc(c, z; kws...)
-function comoving_transverse_dist_mpc(c::AbstractOpenCosmology, z; kws...)
+comoving_transverse_dist(c::AbstractFlatCosmology, z; kws...) =
+    comoving_radial_dist(c, z; kws...)
+function comoving_transverse_dist(c::AbstractOpenCosmology, z; kws...)
     sqrtok = sqrt(c.Ω_k)
-    hubble_dist_mpc0(c)*sinh(sqrtok*Z(c,z; kws...))/sqrtok
+    hubble_dist0(c)*sinh(sqrtok*Z(c,z; kws...))/sqrtok
 end
-function comoving_transverse_dist_mpc(c::AbstractClosedCosmology, z; kws...)
+function comoving_transverse_dist(c::AbstractClosedCosmology, z; kws...)
     sqrtok = sqrt(abs(c.Ω_k))
-    hubble_dist_mpc0(c)*sin(sqrtok*Z(c,z; kws...))/sqrtok
+    hubble_dist0(c)*sin(sqrtok*Z(c,z; kws...))/sqrtok
 end
 
-angular_diameter_dist_mpc(c::AbstractCosmology, z; kws...) =
-    comoving_transverse_dist_mpc(c, z; kws...)/(1 + z)
+angular_diameter_dist(c::AbstractCosmology, z; kws...) =
+    comoving_transverse_dist(c, z; kws...)/(1 + z)
 
-luminosity_dist_mpc(c::AbstractCosmology, z; kws...) =
-    comoving_transverse_dist_mpc(c, z; kws...)*(1 + z)
+luminosity_dist(c::AbstractCosmology, z; kws...) =
+    comoving_transverse_dist(c, z; kws...)*(1 + z)
 
 distmod(c::AbstractCosmology, z; kws...) =
-    5.0 * log10(luminosity_dist_mpc(c, z; kws...)) + 25.0
+    5.0 * log10(luminosity_dist(c, z; kws...) / Mpc) + 25.0
 
 # volumes
 
-comoving_volume_gpc3(c::AbstractFlatCosmology, z; kws...) =
-    (4pi/3)*(comoving_radial_dist_mpc(c,z; kws...)*1e-3)^3
-function comoving_volume_gpc3(c::AbstractOpenCosmology, z; kws...)
-    DH = hubble_dist_mpc0(c)
-    x = comoving_transverse_dist_mpc(c,z; kws...)/DH
+comoving_volume(c::AbstractFlatCosmology, z; kws...) =
+    (4pi/3)*(comoving_radial_dist(c,z; kws...))^3
+function comoving_volume(c::AbstractOpenCosmology, z; kws...)
+    DH = hubble_dist0(c)
+    x = comoving_transverse_dist(c,z; kws...)/DH
     sqrtok = sqrt(c.Ω_k)
-    2pi*(DH*1e-3)^3*(x*sqrt(1. + c.Ω_k*x^2) - asinh(sqrtok*x)/sqrtok)/c.Ω_k
+    2pi*(DH)^3*(x*sqrt(1. + c.Ω_k*x^2) - asinh(sqrtok*x)/sqrtok)/c.Ω_k
 end
-function comoving_volume_gpc3(c::AbstractClosedCosmology, z; kws...)
-    DH = hubble_dist_mpc0(c)
-    x = comoving_transverse_dist_mpc(c,z; kws...)/DH
+function comoving_volume(c::AbstractClosedCosmology, z; kws...)
+    DH = hubble_dist0(c)
+    x = comoving_transverse_dist(c,z; kws...)/DH
     sqrtok = sqrt(abs(c.Ω_k))
-    2pi*(DH*1e-3)^3*(x*sqrt(1. + c.Ω_k*x^2) - asin(sqrtok*x)/sqrtok)/c.Ω_k
+    2pi*(DH)^3*(x*sqrt(1. + c.Ω_k*x^2) - asin(sqrtok*x)/sqrtok)/c.Ω_k
 end
 
-comoving_volume_element_gpc3(c::AbstractCosmology, z; kws...) =
-    1e-9*hubble_dist_mpc0(c,z)*angular_diameter_dist_mpc(c,z; kws...)^2/a2E(c,scale_factor(z))
+comoving_volume_element(c::AbstractCosmology, z; kws...) =
+    hubble_dist0(c,z)*angular_diameter_dist(c,z; kws...)^2/a2E(c,scale_factor(z))
 
 # times
 
 T(c::AbstractCosmology, a0, a1; kws...) = QuadGK.quadgk(x->x/a2E(c,x), a0, a1; kws...)[1]
-age_gyr(c::AbstractCosmology, z; kws...) = hubble_time_gyr0(c)*T(c, 0., scale_factor(z); kws...)
-lookback_time_gyr(c::AbstractCosmology, z; kws...) = hubble_time_gyr0(c)*T(c, scale_factor(z), 1.; kws...)
+age(c::AbstractCosmology, z; kws...) = hubble_time0(c)*T(c, 0.0, scale_factor(z); kws...)
+lookback_time(c::AbstractCosmology, z; kws...) = hubble_time0(c)*T(c, scale_factor(z), 1.0; kws...)
+
+###############
+# Deprecations
+#
+
+@deprecate hubble_dist_mpc0(c::AbstractCosmology) ustrip(hubble_dist0(c::AbstractCosmology))
+@deprecate hubble_dist_mpc(c::AbstractCosmology, z) ustrip(hubble_dist(c::AbstractCosmology, z))
+@deprecate hubble_time_gyr0(c::AbstractCosmology) ustrip(hubble_time0(c::AbstractCosmology))
+@deprecate hubble_time_gyr(c::AbstractCosmology, z) ustrip(hubble_time(c::AbstractCosmology, z))
+@deprecate comoving_radial_dist_mpc(c::AbstractCosmology, z; kws...) ustrip(comoving_radial_dist(c::AbstractCosmology, z; kws...))
+@deprecate comoving_transverse_dist_mpc(c::AbstractFlatCosmology, z; kws...) ustrip(comoving_transverse_dist(c::AbstractFlatCosmology, z; kws...))
+@deprecate comoving_transverse_dist_mpc(c::AbstractOpenCosmology, z; kws...) ustrip(comoving_transverse_dist(c::AbstractOpenCosmology, z; kws...))
+@deprecate comoving_transverse_dist_mpc(c::AbstractClosedCosmology, z; kws...) ustrip(comoving_transverse_dist(c::AbstractClosedCosmology, z; kws...))
+@deprecate angular_diameter_dist_mpc(c::AbstractCosmology, z; kws...) ustrip(angular_diameter_dist(c::AbstractCosmology, z; kws...))
+@deprecate luminosity_dist_mpc(c::AbstractCosmology, z; kws...) ustrip(luminosity_dist(c::AbstractCosmology, z; kws...))
+@deprecate comoving_volume_gpc3(c::AbstractCosmology, z; kws...) ustrip(comoving_volume(c::AbstractCosmology, z; kws...))
+@deprecate comoving_volume_element_gpc3(c::AbstractCosmology, z; kws...) ustrip(comoving_volume_element(c::AbstractCosmology, z; kws...))
+@deprecate age_gyr(c::AbstractCosmology, z; kws...) ustrip(age(c::AbstractCosmology, z; kws...))
+@deprecate lookback_time_gyr(c::AbstractCosmology, z; kws...) ustrip(lookback_time(c::AbstractCosmology, z; kws...))
 
 end # module

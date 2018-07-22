@@ -11,7 +11,7 @@ Installation
 To install the package:
 
 ```jlcon
-julia> Pkg.add("Cosmology")
+pkg> add Cosmology
 ```
 
 Then, to load into your session:
@@ -19,6 +19,9 @@ Then, to load into your session:
 ```jlcon
 julia> using Cosmology
 ```
+
+`Cosmology.jl` uses [`Unitful.jl`](https://github.com/ajkeller34/Unitful.jl) and
+[`UnitfulAstro.jl`](https://github.com/JuliaAstro/UnitfulAstro.jl) to handle units.
 
 Cosmological Models
 -------------------
@@ -79,19 +82,19 @@ Distances
 
 <table>
   <tr>
-    <td>angular_diameter_dist_mpc(cosmo,&nbsp;z)</td>
+    <td>angular_diameter_dist(cosmo,&nbsp;z)</td>
     <td>Ratio of an object's proper transverse size (in Mpc) to its angular size (in radians)</td>
   </tr>
   <tr>
-    <td>comoving_radial_dist_mpc(cosmo,&nbsp;z)</td>
+    <td>comoving_radial_dist(cosmo,&nbsp;z)</td>
     <td>Comoving radial distance to redshift z, in Mpc</td>
   </tr>
   <tr>
-    <td>comoving_volume_gpc3(cosmo,&nbsp;z)</td>
+    <td>comoving_volume(cosmo,&nbsp;z)</td>
     <td>Comoving volume out to redshift z, in Gpc<sup>3</sup></td>
   </tr>
   <tr>
-    <td>luminosity_dist_mpc(cosmo, z)</td>
+    <td>luminosity_dist(cosmo, z)</td>
     <td>Bolometric luminosity distance, in Mpc</td>
   </tr>
   <tr>
@@ -106,8 +109,8 @@ julia> using Cosmology
 julia> c = cosmology(OmegaM=0.26)
 FlatLCDM(0.69,0.7399122024007928,0.26,8.779759920715362e-5)
 
-julia> angular_diameter_dist_mpc(c, 1.2)
-1784.0089227105118
+julia> angular_diameter_dist(c, 1.2)
+1784.0089227105113 Mpc
 ```
 
 Times
@@ -115,11 +118,11 @@ Times
 
 <table>
   <tr>
-    <td>age_gyr(cosmo, z)</td>
+    <td>age(cosmo, z)</td>
     <td>Age of the universe at redshift z, in Gyr</td>
   </tr>
   <tr>
-    <td>lookback_time_gyr(cosmo, z)</td>
+    <td>lookback_time(cosmo, z)</td>
     <td>Difference between age at redshift 0 and age at redshift z, in Gyr</td>
   </tr>
 </table>
@@ -130,6 +133,6 @@ julia> using Cosmology
 julia> c = cosmology(OmegaM=0.26)
 FlatLCDM(0.69,0.7399122024007928,0.26,8.779759920715362e-5)
 
-julia> age_gyr(c, 1.2)
-5.445600787626434
+julia> age(c, 1.2)
+5.445600787626434 Gyr
 ```
