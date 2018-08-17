@@ -5,11 +5,21 @@ os:
   - osx
 julia:
   - 0.7
+  - 1.0
   - nightly
 notifications:
     email: false
-script:
-    - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-    - julia -e 'Pkg.clone(pwd()); Pkg.build("Cosmology"); Pkg.test("Cosmology"; coverage=true)';
+git:
+  depth: 999999
+
+## uncomment the following lines to allow failures on nightly julia
+## (tests will run but not make your overall status red)
+matrix:
+ allow_failures:
+ - julia: nightly
+
+# script:
+#   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+#   - julia -e 'import Pkg; Pkg.add(Pkg.PackageSpec(path=pwd())); Pkg.build("Cosmology"); Pkg.test("Cosmology"; coverage=true)'
 after_success:
-    - julia -e 'cd(Pkg.dir("Cosmology")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())';
+  - julia -e 'import Pkg; cd(Pkg.dir("Cosmology")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())';
