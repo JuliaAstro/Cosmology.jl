@@ -2,8 +2,8 @@ __precompile__()
 
 module Cosmology
 
-using QuadGK
-using Unitful: km, s, ustrip
+using QuadGK, Unitful
+import Unitful: km, s
 using UnitfulAstro: Mpc, Gyr
 
 export cosmology,
@@ -196,6 +196,13 @@ T(c::AbstractCosmology, a0, a1; kws...) = QuadGK.quadgk(x->x/a2E(c,x), a0, a1; k
 age(c::AbstractCosmology, z; kws...) = hubble_time0(c)*T(c, 0.0, scale_factor(z); kws...)
 lookback_time(c::AbstractCosmology, z; kws...) = hubble_time0(c)*T(c, scale_factor(z), 1.0; kws...)
 
+# Easily select a different unit
+for f in (:hubble_dist0, :hubble_dist, :hubble_time0, :hubble_time, :comoving_radial_dist,
+          :comoving_transverse_dist, :angular_diameter_dist, :luminosity_dist,
+          :comoving_volume, :comoving_volume_element, :age, :lookback_time)
+    @eval $f(u::Unitful.Unitlike, args...; kws...) = uconvert(u, $f(args...; kws...))
+end
+
 ###############
 # Deprecations
 #
@@ -205,9 +212,7 @@ lookback_time(c::AbstractCosmology, z; kws...) = hubble_time0(c)*T(c, scale_fact
 @deprecate hubble_time_gyr0(c::AbstractCosmology) ustrip(hubble_time0(c::AbstractCosmology))
 @deprecate hubble_time_gyr(c::AbstractCosmology, z) ustrip(hubble_time(c::AbstractCosmology, z))
 @deprecate comoving_radial_dist_mpc(c::AbstractCosmology, z; kws...) ustrip(comoving_radial_dist(c::AbstractCosmology, z; kws...))
-@deprecate comoving_transverse_dist_mpc(c::AbstractFlatCosmology, z; kws...) ustrip(comoving_transverse_dist(c::AbstractFlatCosmology, z; kws...))
-@deprecate comoving_transverse_dist_mpc(c::AbstractOpenCosmology, z; kws...) ustrip(comoving_transverse_dist(c::AbstractOpenCosmology, z; kws...))
-@deprecate comoving_transverse_dist_mpc(c::AbstractClosedCosmology, z; kws...) ustrip(comoving_transverse_dist(c::AbstractClosedCosmology, z; kws...))
+@deprecate comoving_transverse_dist_mpc(c::AbstractCosmology, z; kws...) ustrip(comoving_transverse_dist(c::AbstractCosmology, z; kws...))
 @deprecate angular_diameter_dist_mpc(c::AbstractCosmology, z; kws...) ustrip(angular_diameter_dist(c::AbstractCosmology, z; kws...))
 @deprecate luminosity_dist_mpc(c::AbstractCosmology, z; kws...) ustrip(luminosity_dist(c::AbstractCosmology, z; kws...))
 @deprecate comoving_volume_gpc3(c::AbstractCosmology, z; kws...) ustrip(comoving_volume(c::AbstractCosmology, z; kws...))

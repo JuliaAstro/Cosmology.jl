@@ -10,13 +10,13 @@ Installation
 
 To install the package:
 
-```jlcon
+```julia
 pkg> add Cosmology
 ```
 
 Then, to load into your session:
 
-```jlcon
+```julia
 julia> using Cosmology
 ```
 
@@ -64,7 +64,7 @@ which takes the following options:
   </tr>
 </table>
 
-```jlcon
+```julia
 julia> using Cosmology
 
 julia> c = cosmology()
@@ -103,7 +103,7 @@ Distances
   </tr>
 </table>
 
-```jlcon
+```julia
 julia> using Cosmology
 
 julia> c = cosmology(OmegaM=0.26)
@@ -111,6 +111,17 @@ FlatLCDM(0.69,0.7399122024007928,0.26,8.779759920715362e-5)
 
 julia> angular_diameter_dist(c, 1.2)
 1784.0089227105113 Mpc
+```
+
+For each function returning a unitful number, you can specify a different unit
+for the result as first argument to the function:
+
+```julia
+julia> comoving_volume(c, 0.6)
+4.936334366313069e10 Mpc^3
+
+julia> comoving_volume(u"ly^3", c, 0.6)
+1.7127035381752994e30 ly^3
 ```
 
 Times
@@ -127,7 +138,7 @@ Times
   </tr>
 </table>
 
-```jlcon
+```julia
 julia> using Cosmology
 
 julia> c = cosmology(OmegaM=0.26)
@@ -135,4 +146,7 @@ FlatLCDM(0.69,0.7399122024007928,0.26,8.779759920715362e-5)
 
 julia> age(c, 1.2)
 5.445600787626434 Gyr
+
+julia> lookback_time(u"yr", c, 1.2)
+8.761660748088268e9 yr
 ```
