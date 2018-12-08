@@ -91,9 +91,11 @@ end
     # Test that FlatLCDM works with non-Float64 (BigFloat in this example)
     c = cosmology(h=0.7, OmegaM=big(0.3), OmegaR=0)
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1651.9145u"Mpc" rtol = dist_rtol
+    @test comoving_volume_element(c, big(1.41)) ≈ 3.4030879e10u"Mpc^3" rtol = dist_rtol
     # Test that FlatWCDM works with non-Float64 (BigFloat in this example)
     c = cosmology(h=big(0.7), OmegaM=0.3, OmegaR=0, w0=-0.9, wa=0.1)
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1612.0585u"Mpc" rtol = dist_rtol
+    @test comoving_volume_element(c, big(1.41)) ≈ 3.1378625e10u"Mpc^3" rtol = dist_rtol
 end
 
 @testset "Unit conversion" begin
