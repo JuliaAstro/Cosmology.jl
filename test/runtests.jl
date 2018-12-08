@@ -86,3 +86,15 @@ end
     c = cosmology(h=big(0.7), OmegaM=0.3, OmegaR=0, w0=-0.9, wa=0.1)
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1612.0585u"Mpc" rtol = dist_rtol
 end
+
+@testset "Unit conversion" begin
+    c = cosmology(h=0.9, OmegaM=0.5, OmegaR=0)
+    for u in (u"m", u"pc", u"ly")
+        @test unit(luminosity_dist(u, c, 1)) == u
+        @test unit(angular_diameter_dist(u, c, 2)) == u
+    end
+    for u in (u"s", u"yr")
+        @test unit(age(u, c, 3)) == u
+        @test unit(lookback_time(u, c, 4)) == u
+    end
+end
