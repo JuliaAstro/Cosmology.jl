@@ -90,6 +90,10 @@ Distances
     <td>Comoving radial distance to redshift z, in Mpc</td>
   </tr>
   <tr>
+    <td>comoving_volume_element(cosmo,&nbsp;z)</td>
+    <td>Comoving volume element out to redshift z, in Gpc<sup>3</sup></td>
+  </tr>
+  <tr>
     <td>comoving_volume(cosmo,&nbsp;z)</td>
     <td>Comoving volume out to redshift z, in Gpc<sup>3</sup></td>
   </tr>

@@ -12,6 +12,7 @@ export cosmology,
        comoving_radial_dist,
        comoving_transverse_dist,
        comoving_volume,
+       comoving_volume_element,
        distmod,
        H,
        hubble_dist,
@@ -188,7 +189,7 @@ function comoving_volume(c::AbstractClosedCosmology, z; kws...)
 end
 
 comoving_volume_element(c::AbstractCosmology, z; kws...) =
-    hubble_dist0(c,z)*angular_diameter_dist(c,z; kws...)^2/a2E(c,scale_factor(z))
+    hubble_dist0(c)*angular_diameter_dist(c,z; kws...)^2/a2E(c,scale_factor(z))
 
 # times
 
