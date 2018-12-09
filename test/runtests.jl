@@ -20,6 +20,7 @@ integrand(c, z) = 4pi*ustrip(comoving_volume_element(c, z))
     @test age(c,0,rtol=age_rtol) ≈ 13.4694u"Gyr" rtol = age_rtol
     @test age(c,1,rtol=age_rtol) ≈ 5.7527u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ (13.4694-5.7527)u"Gyr" rtol = age_rtol
+    @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0)
 end
 
 @testset "OpenLCDM" begin
@@ -33,6 +34,7 @@ end
     @test age(c,0,rtol=age_rtol) ≈ 13.064u"Gyr" rtol = age_rtol
     @test age(c,1,rtol=age_rtol) ≈ 5.5466u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ (13.064-5.5466)u"Gyr" rtol = age_rtol
+    @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0)
 end
 
 @testset "ClosedLCDM" begin
@@ -46,6 +48,7 @@ end
     @test age(c,0,rtol=age_rtol) ≈ 13.925u"Gyr" rtol = age_rtol
     @test age(c,1,rtol=age_rtol) ≈ 5.9868u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ (13.925-5.9868)u"Gyr" rtol = age_rtol
+    @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0)
 end
 
 @testset "FlatWCDM" begin
@@ -59,6 +62,7 @@ end
     @test age(c,0,rtol=age_rtol) ≈ 13.1915u"Gyr" rtol = age_rtol
     @test age(c,1,rtol=age_rtol) ≈ 5.6464u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ (13.1915-5.6464)u"Gyr" rtol = age_rtol
+    @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0)
 end
 
 @testset "OpenWCDM" begin
@@ -72,6 +76,7 @@ end
     @test age(c,0,rtol=age_rtol) ≈ 12.8488u"Gyr" rtol = age_rtol
     @test age(c,1,rtol=age_rtol) ≈ 5.4659u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ (12.8488-5.4659)u"Gyr" rtol = age_rtol
+    @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0)
 end
 
 @testset "ClosedWCDM" begin
@@ -85,6 +90,7 @@ end
     @test age(c,0,rtol=age_rtol) ≈ 13.5702u"Gyr" rtol = age_rtol
     @test age(c,1,rtol=age_rtol) ≈ 5.8482u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ (13.5702-5.8482)u"Gyr" rtol = age_rtol
+    @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0)
 end
 
 @testset "Non-Float64" begin

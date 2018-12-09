@@ -90,14 +90,6 @@ Distances
     <td>Comoving radial distance to redshift z, in Mpc</td>
   </tr>
   <tr>
-    <td>comoving_volume_element(cosmo,&nbsp;z)</td>
-    <td>Comoving volume element out to redshift z, in Gpc<sup>3</sup></td>
-  </tr>
-  <tr>
-    <td>comoving_volume(cosmo,&nbsp;z)</td>
-    <td>Comoving volume out to redshift z, in Gpc<sup>3</sup></td>
-  </tr>
-  <tr>
     <td>luminosity_dist(cosmo, z)</td>
     <td>Bolometric luminosity distance, in Mpc</td>
   </tr>
@@ -121,6 +113,36 @@ For each function returning a unitful number, you can specify a different unit
 for the result as first argument to the function:
 
 ```julia
+julia> luminosity_dist(c, 1.5)
+11420.338287150073 Mpc
+
+julia> luminosity_dist(u"Gpc", c, 1.5)
+11.420338287150074 Gpc
+```
+
+Volumes
+-------
+
+<table>
+  <tr>
+    <td>comoving_volume_element(cosmo,&nbsp;z)</td>
+    <td>Comoving volume element out to redshift z, in Gpc<sup>3</sup></td>
+  </tr>
+  <tr>
+    <td>comoving_volume(cosmo,&nbsp;z)</td>
+    <td>Comoving volume out to redshift z, in Gpc<sup>3</sup></td>
+  </tr>
+</table>
+
+```julia
+julia> using Cosmology
+
+julia> c = cosmology(OmegaM=0.26)
+FlatLCDM(0.69,0.7399122024007928,0.26,8.779759920715362e-5)
+
+julia> comoving_volume_element(c, 2.1)
+46.74459228888612 Gpc^3
+
 julia> comoving_volume(c, 0.6)
 49.3633436631307 Gpc^3
 
