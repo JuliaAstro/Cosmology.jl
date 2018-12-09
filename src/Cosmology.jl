@@ -4,7 +4,7 @@ module Cosmology
 
 using QuadGK, Unitful
 import Unitful: km, s
-using UnitfulAstro: Mpc, Gyr
+using UnitfulAstro: Mpc, Gpc, Gyr
 
 export cosmology,
        age,
@@ -174,22 +174,22 @@ distmod(c::AbstractCosmology, z; kws...) =
 # volumes
 
 comoving_volume(c::AbstractFlatCosmology, z; kws...) =
-    (4pi/3)*(comoving_radial_dist(c,z; kws...))^3
+    (4pi/3)*(comoving_radial_dist(Gpc, c, z; kws...))^3
 function comoving_volume(c::AbstractOpenCosmology, z; kws...)
-    DH = hubble_dist0(c)
-    x = comoving_transverse_dist(c,z; kws...)/DH
+    DH = hubble_dist0(Gpc, c)
+    x = comoving_transverse_dist(Gpc, c, z; kws...)/DH
     sqrtok = sqrt(c.Ω_k)
     2pi*(DH)^3*(x*sqrt(1 + c.Ω_k*x^2) - asinh(sqrtok*x)/sqrtok)/c.Ω_k
 end
 function comoving_volume(c::AbstractClosedCosmology, z; kws...)
-    DH = hubble_dist0(c)
-    x = comoving_transverse_dist(c,z; kws...)/DH
+    DH = hubble_dist0(Gpc, c)
+    x = comoving_transverse_dist(Gpc, c,z; kws...)/DH
     sqrtok = sqrt(abs(c.Ω_k))
     2pi*(DH)^3*(x*sqrt(1 + c.Ω_k*x^2) - asin(sqrtok*x)/sqrtok)/c.Ω_k
 end
 
 comoving_volume_element(c::AbstractCosmology, z; kws...) =
-    hubble_dist0(c)*angular_diameter_dist(c,z; kws...)^2/a2E(c,scale_factor(z))
+    hubble_dist0(Gpc, c)*angular_diameter_dist(Gpc, c, z; kws...)^2/a2E(c, scale_factor(z))
 
 # times
 
