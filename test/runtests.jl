@@ -1,16 +1,20 @@
 using Cosmology
-using Test, Unitful, UnitfulAstro
+using Test, Unitful, UnitfulAstro, QuadGK
 
 # values from http://icosmos.co.uk/
 
 dist_rtol = 1e-6
 age_rtol = 2e-4
+# Integrating a unitful function would require UnitfulIntegration.jl.  Without using it, we
+# strip the units away from the integrand function
+integrand(c, z) = 4pi*ustrip(comoving_volume_element(c, z))
 
 @testset "FlatLCDM" begin
     c = cosmology(h=0.7, OmegaM=0.3, OmegaR=0)
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1651.9145u"Mpc" rtol = dist_rtol
     @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3303.829u"Mpc" rtol = dist_rtol
     @test comoving_volume(c,1,rtol=dist_rtol) ≈ 151.0571u"Gpc^3" rtol = dist_rtol
+    @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ ustrip(comoving_volume(c, 2.5))
     @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6607.6579u"Mpc" rtol = dist_rtol
     @test distmod(c,1,rtol=dist_rtol) ≈ 44.1002 rtol = dist_rtol
     @test age(c,0,rtol=age_rtol) ≈ 13.4694u"Gyr" rtol = age_rtol
@@ -23,6 +27,7 @@ end
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1619.9588u"Mpc" rtol = dist_rtol
     @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3209.784u"Mpc" rtol = dist_rtol
     @test comoving_volume(c,1,rtol=dist_rtol) ≈ 140.0856u"Gpc^3" rtol = dist_rtol
+    @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ ustrip(comoving_volume(c, 2.5))
     @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6479.8352u"Mpc" rtol = dist_rtol
     @test distmod(c,1,rtol=dist_rtol) ≈ 44.0578 rtol = dist_rtol
     @test age(c,0,rtol=age_rtol) ≈ 13.064u"Gyr" rtol = age_rtol
@@ -35,6 +40,7 @@ end
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1686.5272u"Mpc" rtol = dist_rtol
     @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3408.937u"Mpc" rtol = dist_rtol
     @test comoving_volume(c,1,rtol=dist_rtol) ≈ 163.8479u"Gpc^3" rtol = dist_rtol
+    @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ ustrip(comoving_volume(c, 2.5))
     @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6746.1088u"Mpc" rtol = dist_rtol
     @test distmod(c,1,rtol=dist_rtol) ≈ 44.1453 rtol = dist_rtol
     @test age(c,0,rtol=age_rtol) ≈ 13.925u"Gyr" rtol = age_rtol
@@ -47,6 +53,7 @@ end
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1612.0585u"Mpc" rtol = dist_rtol
     @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3224.1169u"Mpc" rtol = dist_rtol
     @test comoving_volume(c,1,rtol=dist_rtol) ≈ 140.3851u"Gpc^3" rtol = dist_rtol
+    @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ ustrip(comoving_volume(c, 2.5))
     @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6448.2338u"Mpc" rtol = dist_rtol
     @test distmod(c,1,rtol=dist_rtol) ≈ 44.0472 rtol = dist_rtol
     @test age(c,0,rtol=age_rtol) ≈ 13.1915u"Gyr" rtol = age_rtol
@@ -59,6 +66,7 @@ end
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1588.0181u"Mpc" rtol = dist_rtol
     @test comoving_radial_dist(c,rtol=dist_rtol,1) ≈ 3147.6227u"Mpc" rtol = dist_rtol
     @test comoving_volume(c,1,rtol=dist_rtol) ≈ 132.0466u"Gpc^3" rtol = dist_rtol
+    @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ ustrip(comoving_volume(c, 2.5))
     @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6352.0723u"Mpc" rtol = dist_rtol
     @test distmod(c,1,rtol=dist_rtol) ≈ 44.0146 rtol = dist_rtol
     @test age(c,0,rtol=age_rtol) ≈ 12.8488u"Gyr" rtol = age_rtol
@@ -71,6 +79,7 @@ end
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1637.5993u"Mpc" rtol = dist_rtol
     @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3307.9932u"Mpc" rtol = dist_rtol
     @test comoving_volume(c,1,rtol=dist_rtol) ≈ 149.8301u"Gpc^3" rtol = dist_rtol
+    @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ ustrip(comoving_volume(c, 2.5))
     @test luminosity_dist(c,1,rtol=dist_rtol) ≈ 6550.3973u"Mpc" rtol = dist_rtol
     @test distmod(c,1,rtol=dist_rtol) ≈ 44.0813 rtol = dist_rtol
     @test age(c,0,rtol=age_rtol) ≈ 13.5702u"Gyr" rtol = age_rtol
