@@ -122,7 +122,7 @@ for the result as first argument to the function:
 
 ```julia
 julia> comoving_volume(c, 0.6)
-4.936334366313069e10 Mpc^3
+49.3633436631307 Gpc^3
 
 julia> comoving_volume(u"ly^3", c, 0.6)
 1.7127035381752994e30 ly^3
