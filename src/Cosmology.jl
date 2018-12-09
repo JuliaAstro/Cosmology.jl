@@ -36,7 +36,7 @@ FlatLCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
     FlatLCDM(promote(float(h), float(Ω_Λ), float(Ω_m), float(Ω_r))...)
 
 
-a2E(c::FlatLCDM, a::Float64) = sqrt(c.Ω_r + c.Ω_m*a + c.Ω_Λ*a^4)
+a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m*a + c.Ω_Λ*a^4)
 
 struct ClosedLCDM{T<:Real} <: AbstractClosedCosmology
     h::T
@@ -62,7 +62,7 @@ OpenLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
                      float(Ω_r))...)
 
 
-function a2E(c::Union{ClosedLCDM,OpenLCDM}, a::Float64)
+function a2E(c::Union{ClosedLCDM,OpenLCDM}, a)
     a2 = a*a
     sqrt(c.Ω_r + c.Ω_m*a + (c.Ω_k + c.Ω_Λ*a2)*a2)
 end
@@ -97,8 +97,8 @@ function WCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real, w0::Real
     end
 end
 
-function a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a::Float64)
-    ade = exp((1.0 - 3.0*(c.w0 + c.wa))*log(a) + 3.0*c.wa*(a - 1.0))
+function a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
+    ade = exp((1 - 3*(c.w0 + c.wa))*log(a) + 3*c.wa*(a - 1))
     sqrt(c.Ω_r + (c.Ω_m + c.Ω_k*a)*a + c.Ω_Λ*ade)
 end
 
@@ -117,7 +117,7 @@ function cosmology(;h=0.69,
         OmegaR = OmegaG + OmegaN
     end
 
-    OmegaL = 1. - OmegaK - OmegaM - OmegaR
+    OmegaL = 1 - OmegaK - OmegaM - OmegaR
 
     if !(w0 == -1 && wa == 0)
         return WCDM(h, OmegaK, OmegaL, OmegaM, OmegaR, w0, wa)
@@ -136,7 +136,7 @@ end
 
 scale_factor(z) = 1/(1 + z)
 E(c::AbstractCosmology, z) = (a = scale_factor(z); a2E(c,a)/a^2)
-H(c::AbstractCosmology, z) = 100. * c.h * E(c, z) * km / s / Mpc
+H(c::AbstractCosmology, z) = 100 * c.h * E(c, z) * km / s / Mpc
 
 hubble_dist0(c::AbstractCosmology) = 2997.92458/c.h * Mpc
 hubble_dist(c::AbstractCosmology, z) = hubble_dist0(c)/E(c,z)
@@ -147,7 +147,7 @@ hubble_time(c::AbstractCosmology, z) = hubble_time0(c)/E(c,z)
 # distances
 
 Z(c::AbstractCosmology, z::Real; kws...) =
-    QuadGK.quadgk(a::Float64->1.0/a2E(c,a), scale_factor(z), 1; kws...)[1]
+    QuadGK.quadgk(a->1/a2E(c,a), scale_factor(z), 1; kws...)[1]
 
 comoving_radial_dist(c::AbstractCosmology, z; kws...) = hubble_dist0(c)*Z(c, z; kws...)
 
@@ -169,7 +169,7 @@ luminosity_dist(c::AbstractCosmology, z; kws...) =
     comoving_transverse_dist(c, z; kws...)*(1 + z)
 
 distmod(c::AbstractCosmology, z; kws...) =
-    5.0 * log10(luminosity_dist(c, z; kws...) / Mpc) + 25.0
+    5 * log10(luminosity_dist(c, z; kws...) / Mpc) + 25
 
 # volumes
 
@@ -179,13 +179,13 @@ function comoving_volume(c::AbstractOpenCosmology, z; kws...)
     DH = hubble_dist0(c)
     x = comoving_transverse_dist(c,z; kws...)/DH
     sqrtok = sqrt(c.Ω_k)
-    2pi*(DH)^3*(x*sqrt(1. + c.Ω_k*x^2) - asinh(sqrtok*x)/sqrtok)/c.Ω_k
+    2pi*(DH)^3*(x*sqrt(1 + c.Ω_k*x^2) - asinh(sqrtok*x)/sqrtok)/c.Ω_k
 end
 function comoving_volume(c::AbstractClosedCosmology, z; kws...)
     DH = hubble_dist0(c)
     x = comoving_transverse_dist(c,z; kws...)/DH
     sqrtok = sqrt(abs(c.Ω_k))
-    2pi*(DH)^3*(x*sqrt(1. + c.Ω_k*x^2) - asin(sqrtok*x)/sqrtok)/c.Ω_k
+    2pi*(DH)^3*(x*sqrt(1 + c.Ω_k*x^2) - asin(sqrtok*x)/sqrtok)/c.Ω_k
 end
 
 comoving_volume_element(c::AbstractCosmology, z; kws...) =
@@ -194,8 +194,8 @@ comoving_volume_element(c::AbstractCosmology, z; kws...) =
 # times
 
 T(c::AbstractCosmology, a0, a1; kws...) = QuadGK.quadgk(x->x/a2E(c,x), a0, a1; kws...)[1]
-age(c::AbstractCosmology, z; kws...) = hubble_time0(c)*T(c, 0.0, scale_factor(z); kws...)
-lookback_time(c::AbstractCosmology, z; kws...) = hubble_time0(c)*T(c, scale_factor(z), 1.0; kws...)
+age(c::AbstractCosmology, z; kws...) = hubble_time0(c)*T(c, 0, scale_factor(z); kws...)
+lookback_time(c::AbstractCosmology, z; kws...) = hubble_time0(c)*T(c, scale_factor(z), 1; kws...)
 
 # Easily select a different unit
 for f in (:hubble_dist0, :hubble_dist, :hubble_time0, :hubble_time, :comoving_radial_dist,
