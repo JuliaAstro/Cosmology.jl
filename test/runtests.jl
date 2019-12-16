@@ -12,6 +12,7 @@ integrand(c, z) = 4pi*ustrip(comoving_volume_element(c, z))
 @testset "FlatLCDM" begin
     c = cosmology(h=0.7, OmegaM=0.3, OmegaR=0)
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1651.9145u"Mpc" rtol = dist_rtol
+    @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 625.3444u"Mpc" rtol = dist_rtol
     @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3303.829u"Mpc" rtol = dist_rtol
     @test comoving_volume(c,1,rtol=dist_rtol) ≈ 151.0571u"Gpc^3" rtol = dist_rtol
     @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ ustrip(comoving_volume(c, 2.5))
@@ -26,6 +27,7 @@ end
 @testset "OpenLCDM" begin
     c = cosmology(h=0.7, OmegaK=0.1, OmegaM=0.3, OmegaR=0)
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1619.9588u"Mpc" rtol = dist_rtol
+    @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 598.9118u"Mpc" rtol = dist_rtol
     @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3209.784u"Mpc" rtol = dist_rtol
     @test comoving_volume(c,1,rtol=dist_rtol) ≈ 140.0856u"Gpc^3" rtol = dist_rtol
     @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ ustrip(comoving_volume(c, 2.5))
@@ -40,6 +42,7 @@ end
 @testset "ClosedLCDM" begin
     c = cosmology(h=0.7, OmegaK=-0.1, OmegaM=0.3, OmegaR=0)
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1686.5272u"Mpc" rtol = dist_rtol
+    @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 655.6019u"Mpc" rtol = dist_rtol
     @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3408.937u"Mpc" rtol = dist_rtol
     @test comoving_volume(c,1,rtol=dist_rtol) ≈ 163.8479u"Gpc^3" rtol = dist_rtol
     @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ ustrip(comoving_volume(c, 2.5))
@@ -54,6 +57,7 @@ end
 @testset "FlatWCDM" begin
     c = cosmology(h=0.7, OmegaM=0.3, OmegaR=0, w0=-0.9, wa=0.1)
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1612.0585u"Mpc" rtol = dist_rtol
+    @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 607.6802u"Mpc" rtol = dist_rtol
     @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3224.1169u"Mpc" rtol = dist_rtol
     @test comoving_volume(c,1,rtol=dist_rtol) ≈ 140.3851u"Gpc^3" rtol = dist_rtol
     @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ ustrip(comoving_volume(c, 2.5))
@@ -68,6 +72,7 @@ end
 @testset "OpenWCDM" begin
     c = cosmology(h=0.7, OmegaK=0.1, OmegaM=0.3, OmegaR=0, w0=-0.9, wa=0.1)
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1588.0181u"Mpc" rtol = dist_rtol
+    @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 585.4929u"Mpc" rtol = dist_rtol
     @test comoving_radial_dist(c,rtol=dist_rtol,1) ≈ 3147.6227u"Mpc" rtol = dist_rtol
     @test comoving_volume(c,1,rtol=dist_rtol) ≈ 132.0466u"Gpc^3" rtol = dist_rtol
     @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ ustrip(comoving_volume(c, 2.5))
@@ -82,6 +87,7 @@ end
 @testset "ClosedWCDM" begin
     c = cosmology(h=0.7, OmegaK=-0.1, OmegaM=0.3, OmegaR=0, w0=-0.9, wa=0.1)
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1637.5993u"Mpc" rtol = dist_rtol
+    @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 632.5829u"Mpc" rtol = dist_rtol
     @test comoving_radial_dist(c,1,rtol=dist_rtol) ≈ 3307.9932u"Mpc" rtol = dist_rtol
     @test comoving_volume(c,1,rtol=dist_rtol) ≈ 149.8301u"Gpc^3" rtol = dist_rtol
     @test quadgk(z -> integrand(c, z), 0, 2.5)[1] ≈ ustrip(comoving_volume(c, 2.5))
@@ -97,10 +103,12 @@ end
     # Test that FlatLCDM works with non-Float64 (BigFloat in this example)
     c = cosmology(h=0.7, OmegaM=big(0.3), OmegaR=0)
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1651.9145u"Mpc" rtol = dist_rtol
+    @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 625.3444u"Mpc" rtol = dist_rtol
     @test comoving_volume_element(c, big(1.41)) ≈ 3.4030879e10u"Mpc^3" rtol = dist_rtol
     # Test that FlatWCDM works with non-Float64 (BigFloat in this example)
     c = cosmology(h=big(0.7), OmegaM=0.3, OmegaR=0, w0=-0.9, wa=0.1)
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1612.0585u"Mpc" rtol = dist_rtol
+    @test angular_diameter_dist(c,1,2,rtol=dist_rtol) ≈ 607.6802u"Mpc" rtol = dist_rtol
     @test comoving_volume_element(c, big(1.41)) ≈ 3.1378625e10u"Mpc^3" rtol = dist_rtol
 end
 

@@ -93,7 +93,7 @@ function WCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real, w0::Real
     elseif Ω_k > 0
         OpenWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
     else
-        FlatWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa) 
+        FlatWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
     end
 end
 
@@ -229,9 +229,7 @@ end
 @deprecate hubble_time_gyr(c::AbstractCosmology, z) ustrip(hubble_time(c::AbstractCosmology, z))
 @deprecate comoving_radial_dist_mpc(c::AbstractCosmology, z; kws...) ustrip(comoving_radial_dist(c::AbstractCosmology, z; kws...))
 @deprecate comoving_transverse_dist_mpc(c::AbstractCosmology, z; kws...) ustrip(comoving_transverse_dist(c::AbstractCosmology, z; kws...))
-@deprecate comoving_transverse_dist_mpc(c::AbstractCosmology, z₁, z₂; kws...) ustrip(comoving_transverse_dist(c::AbstractCosmology, z₁, z₂; kws...))
 @deprecate angular_diameter_dist_mpc(c::AbstractCosmology, z; kws...) ustrip(angular_diameter_dist(c::AbstractCosmology, z; kws...))
-@deprecate angular_diameter_dist_mpc(c::AbstractCosmology, z₁, z₂; kws...) ustrip(angular_diameter_dist(c::AbstractCosmology, z₁, z₂; kws...))
 @deprecate luminosity_dist_mpc(c::AbstractCosmology, z; kws...) ustrip(luminosity_dist(c::AbstractCosmology, z; kws...))
 @deprecate comoving_volume_gpc3(c::AbstractCosmology, z; kws...) ustrip(comoving_volume(c::AbstractCosmology, z; kws...))
 @deprecate comoving_volume_element_gpc3(c::AbstractCosmology, z; kws...) ustrip(comoving_volume_element(c::AbstractCosmology, z; kws...))
