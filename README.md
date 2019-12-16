@@ -86,6 +86,11 @@ Distances
     <td>Ratio of an object's proper transverse size (in Mpc) to its angular size (in radians)</td>
   </tr>
   <tr>
+    <td>angular_diameter_dist(cosmo,&nbsp;z<sub>1</sub>,&nbsp;z<sub>2</sub>)</td>
+    <td>Ratio of the proper transverse size (in Mpc) of an object at redshift z<sub>2</sub> to its 
+    angular size (in radians), as seen by an observer at z<sub>1</sub></td>
+  </tr>
+  <tr>
     <td>comoving_radial_dist(cosmo,&nbsp;z)</td>
     <td>Comoving radial distance to redshift z, in Mpc</td>
   </tr>
@@ -107,6 +112,9 @@ FlatLCDM(0.69,0.7399122024007928,0.26,8.779759920715362e-5)
 
 julia> angular_diameter_dist(c, 1.2)
 1784.0089227105113 Mpc
+
+julia> angular_diameter_dist(c, 0.7, 1.2)
+606.6521737365097 Mpc
 ```
 
 For each function returning a unitful number, you can specify a different unit
