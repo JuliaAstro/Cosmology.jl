@@ -146,31 +146,20 @@ hubble_time(c::AbstractCosmology, z) = hubble_time0(c)/E(c,z)
 
 # distances
 
-Z(c::AbstractCosmology, z::Real; kws...) =
+Z(c::AbstractCosmology, z::Real, ::Nothing; kws...) =
     QuadGK.quadgk(a->1/a2E(c,a), scale_factor(z), 1; kws...)[1]
 Z(c::AbstractCosmology, z₁::Real, z₂::Real; kws...) =
     QuadGK.quadgk(a->1/a2E(c,a), scale_factor(z₂), scale_factor(z₁); kws...)[1]
 
-comoving_radial_dist(c::AbstractCosmology, z; kws...) = hubble_dist0(c)*Z(c, z; kws...)
-comoving_radial_dist(c::AbstractCosmology, z₁, z₂; kws...) = hubble_dist0(c)*Z(c, z₁, z₂; kws...)
+comoving_radial_dist(c::AbstractCosmology, z₁, z₂=nothing; kws...) = hubble_dist0(c)*Z(c, z₁, z₂; kws...)
 
-comoving_transverse_dist(c::AbstractFlatCosmology, z; kws...) =
-    comoving_radial_dist(c, z; kws...)
-comoving_transverse_dist(c::AbstractFlatCosmology, z₁, z₂; kws...) =
+comoving_transverse_dist(c::AbstractFlatCosmology, z₁, z₂=nothing; kws...) =
     comoving_radial_dist(c, z₁, z₂; kws...)
-function comoving_transverse_dist(c::AbstractOpenCosmology, z; kws...)
-    sqrtok = sqrt(c.Ω_k)
-    hubble_dist0(c)*sinh(sqrtok*Z(c, z; kws...))/sqrtok
-end
-function comoving_transverse_dist(c::AbstractOpenCosmology, z₁, z₂; kws...)
+function comoving_transverse_dist(c::AbstractOpenCosmology, z₁, z₂=nothing; kws...)
     sqrtok = sqrt(c.Ω_k)
     hubble_dist0(c)*sinh(sqrtok*Z(c, z₁, z₂; kws...))/sqrtok
 end
-function comoving_transverse_dist(c::AbstractClosedCosmology, z; kws...)
-    sqrtok = sqrt(abs(c.Ω_k))
-    hubble_dist0(c)*sin(sqrtok*Z(c,z; kws...))/sqrtok
-end
-function comoving_transverse_dist(c::AbstractClosedCosmology, z₁, z₂; kws...)
+function comoving_transverse_dist(c::AbstractClosedCosmology, z₁, z₂=nothing; kws...)
     sqrtok = sqrt(abs(c.Ω_k))
     hubble_dist0(c)*sin(sqrtok*Z(c, z₁, z₂; kws...))/sqrtok
 end
