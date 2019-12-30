@@ -1,6 +1,10 @@
 using Documenter
 using Cosmology
 
+
+DocMeta.setdocmeta!(Cosmology, :DocTestSetup, :(using Cosmology); recursive = true)
+
+
 makedocs(;
     modules = [Cosmology],
     authors = "Julia Astro",
@@ -12,6 +16,7 @@ makedocs(;
         assets = String[],),
     pages = [
         "Home" => "index.md",
+        "API/Reference" => "api.md"
     ],)
 
 deploydocs(;

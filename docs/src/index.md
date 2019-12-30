@@ -9,13 +9,13 @@
 
 To install the package, enter `pkg` mode (`]`)
 
-```julia
+```julia-repl
 pkg> add Cosmology
 ```
 
 Then, to load the package
 
-```julia
+```julia-repl
 julia> using Cosmology
 ```
 
