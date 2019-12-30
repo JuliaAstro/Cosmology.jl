@@ -124,13 +124,13 @@ end
 # Examples
 ```jldoctest
 julia> c = cosmology()
-FlatLCDM(0.69,0.7099122024007928,0.29,8.779759920715362e-5)
+Cosmology.FlatLCDM{Float64}(0.69, 0.7099122024007928, 0.29, 8.77975992071536e-5)
 
 julia> c = cosmology(OmegaK=0.1)
-OpenLCDM(0.69,0.1,0.6099122024007929,0.29,8.779759920715362e-5)
+Cosmology.OpenLCDM{Float64}(0.69, 0.1, 0.6099122024007929, 0.29, 8.77975992071536e-5)
 
 julia> c = cosmology(w0=-0.9, OmegaK=-0.1)
-ClosedWCDM(0.69,-0.1,0.8099122024007929,0.29,8.779759920715362e-5,-0.9,0.0)
+Cosmology.ClosedWCDM{Float64}(0.69, -0.1, 0.8099122024007929, 0.29, 8.77975992071536e-5, -0.9, 0.0)
 ```
 """
 function cosmology(;h = 0.69,
