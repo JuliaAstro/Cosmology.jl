@@ -208,21 +208,4 @@ for f in (:hubble_dist0, :hubble_dist, :hubble_time0, :hubble_time, :comoving_ra
     @eval $f(u::Unitful.Unitlike, args...; kws...) = uconvert(u, $f(args...; kws...))
 end
 
-###############
-# Deprecations
-#
-
-@deprecate hubble_dist_mpc0(c::AbstractCosmology) ustrip(hubble_dist0(c::AbstractCosmology))
-@deprecate hubble_dist_mpc(c::AbstractCosmology, z) ustrip(hubble_dist(c::AbstractCosmology, z))
-@deprecate hubble_time_gyr0(c::AbstractCosmology) ustrip(hubble_time0(c::AbstractCosmology))
-@deprecate hubble_time_gyr(c::AbstractCosmology, z) ustrip(hubble_time(c::AbstractCosmology, z))
-@deprecate comoving_radial_dist_mpc(c::AbstractCosmology, z; kws...) ustrip(comoving_radial_dist(c::AbstractCosmology, z; kws...))
-@deprecate comoving_transverse_dist_mpc(c::AbstractCosmology, z; kws...) ustrip(comoving_transverse_dist(c::AbstractCosmology, z; kws...))
-@deprecate angular_diameter_dist_mpc(c::AbstractCosmology, z; kws...) ustrip(angular_diameter_dist(c::AbstractCosmology, z; kws...))
-@deprecate luminosity_dist_mpc(c::AbstractCosmology, z; kws...) ustrip(luminosity_dist(c::AbstractCosmology, z; kws...))
-@deprecate comoving_volume_gpc3(c::AbstractCosmology, z; kws...) ustrip(comoving_volume(c::AbstractCosmology, z; kws...))
-@deprecate comoving_volume_element_gpc3(c::AbstractCosmology, z; kws...) ustrip(comoving_volume_element(c::AbstractCosmology, z; kws...))
-@deprecate age_gyr(c::AbstractCosmology, z; kws...) ustrip(age(c::AbstractCosmology, z; kws...))
-@deprecate lookback_time_gyr(c::AbstractCosmology, z; kws...) ustrip(lookback_time(c::AbstractCosmology, z; kws...))
-
 end # module
