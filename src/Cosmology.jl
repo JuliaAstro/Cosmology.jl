@@ -182,18 +182,15 @@ Z(c::AbstractCosmology, z::Real, ::Nothing; kws...) =
 Z(c::AbstractCosmology, z₁::Real, z₂::Real; kws...) =
     QuadGK.quadgk(a->1 / a2E(c, a), scale_factor(z₂), scale_factor(z₁); kws...)[1]
 
-"""
-    comoving_radial_dist(::AbstractCosmology, z)
-    comoving_radial_dist(::Unitlike, ::AbstractCosmology, z)
-
-Comoving radial distance in Mpc at redshift `z`. Will convert to compatible unit if provided.
-
-    comoving_radial_dist(::AbstractCosmology, z₁, z₂)
-    comoving_radial_dist(::Unitlike, ::AbstractCosmology, z₁, z₂)
-
-Comoving radial distance in Mpc at redshift `z₂` as seen by an observer at `z₁`. Will convert to compatible unit if provided.
-"""
 comoving_radial_dist(c::AbstractCosmology, z₁, z₂ = nothing; kws...) = hubble_dist0(c) * Z(c, z₁, z₂; kws...)
+
+"""
+    comoving_radial_dist([u::Unitlike,] c::AbstractCosmology, [z₁,] z₂)
+
+Comoving radial distance in Mpc at redshift `z₂` as seen by an observer at `z₁`.  Redshift `z₁` defaults to 0 if omitted.  Will convert to compatible unit `u` if provided.
+"""
+comoving_radial_dist
+
 
 comoving_transverse_dist(c::AbstractFlatCosmology, z₁, z₂ = nothing; kws...) =
     comoving_radial_dist(c, z₁, z₂; kws...)
@@ -206,34 +203,30 @@ function comoving_transverse_dist(c::AbstractClosedCosmology, z₁, z₂ = nothi
     hubble_dist0(c) * sin(sqrtok * Z(c, z₁, z₂; kws...)) / sqrtok
 end
 
-"""
-    angular_diameter_dist(::AbstractCosmology, z)
-
-Ratio of an object's proper transverse size in Mpc to its angular size in radians at redshift `z`.
-"""
 angular_diameter_dist(c::AbstractCosmology, z; kws...) =
     comoving_transverse_dist(c, z; kws...) / (1 + z)
-
-"""
-    angular_diameter_dist(::AbstractCosmology, z₁, z₂)
-
-Ratio of the proper transverse size in Mpc of an object at redshift `z₂` to its angular size in radians, as seen by an observer at `z₁`.
-"""
 angular_diameter_dist(c::AbstractCosmology, z₁, z₂; kws...) =
     comoving_transverse_dist(c, z₁, z₂; kws...) / (1 + z₂)
 
-
 """
-    luminosity_dist(::AbstractCosmology, z)
-    luminosity_dist(::Unitlike, ::AbstractCosmology, z)
+    angular_diameter_dist([u::Unitlike,] c::AbstractCosmology, [z₁,] z₂)
 
-Bolometric luminosity distance in Mpc at redshift `z`. Will convert to compatible unit if provided.
+Ratio of the proper transverse size in Mpc of an object at redshift `z₂` to its angular size in radians, as seen by an observer at `z₁`.  Redshift `z₁` defaults to 0 if omitted.  Will convert to compatible unit `u` if provided.
 """
+angular_diameter_dist
+
 luminosity_dist(c::AbstractCosmology, z; kws...) =
     comoving_transverse_dist(c, z; kws...) * (1 + z)
 
 """
-    distmod(::AbstractCosmology, z)
+    luminosity_dist([u::Unitlike,] c::AbstractCosmology, z)
+
+Bolometric luminosity distance in Mpc at redshift `z`. Will convert to compatible unit `u` if provided.
+"""
+luminosity_dist
+
+"""
+    distmod(c::AbstractCosmology, z)
 
 Distance modulus in magnitudes at redshift `z`.
 """
@@ -243,10 +236,9 @@ distmod(c::AbstractCosmology, z; kws...) =
 # volumes
 
 """
-    comoving_volume(::AbstractCosmology, z)
-    comoving_volume(::Unitlike, ::AbstractCosmology, z)
+    comoving_volume([u::Unitlike,] c::AbstractCosmology, z)
 
-Comoving volume in cubic Gpc out to redshift `z`. Will convert to compatible unit if provided.
+Comoving volume in cubic Gpc out to redshift `z`. Will convert to compatible unit `u` if provided.
 """
 comoving_volume(c::AbstractFlatCosmology, z; kws...) =
     (4pi / 3) * (comoving_radial_dist(Gpc, c, z; kws...))^3
@@ -264,10 +256,9 @@ function comoving_volume(c::AbstractClosedCosmology, z; kws...)
 end
 
 """
-    comoving_volume_element(::AbstractCosmology, z)
-    comoving_volume_element(::Unitlike, ::AbstractCosmology, z)
+    comoving_volume_element([u::Unitlike,] c::AbstractCosmology, z)
 
-Comoving volume element in Gpc out to redshift `z`. Will convert to compatible unit if provided.
+Comoving volume element in Gpc out to redshift `z`. Will convert to compatible unit `u` if provided.
 """
 comoving_volume_element(c::AbstractCosmology, z; kws...) =
     hubble_dist0(Gpc, c) * angular_diameter_dist(Gpc, c, z; kws...)^2 / a2E(c, scale_factor(z))
@@ -276,18 +267,16 @@ comoving_volume_element(c::AbstractCosmology, z; kws...) =
 
 T(c::AbstractCosmology, a0, a1; kws...) = QuadGK.quadgk(x->x / a2E(c, x), a0, a1; kws...)[1]
 """
-    age(::AbstractCosmology, z)
-    age(::Unitlike, ::AbstractCosmology, z)
+    age([u::Unitlike,] c::AbstractCosmology, z)
 
-Age of the universe in Gyr at redshift `z`. Will convert to compatible unit if provided.
+Age of the universe in Gyr at redshift `z`. Will convert to compatible unit `u` if provided.
 """
 age(c::AbstractCosmology, z; kws...) = hubble_time0(c) * T(c, 0, scale_factor(z); kws...)
 
 """
-    lookback_time(::AbstractCosmology, z)
-    lookback_time(::Unitlike, ::AbstractCosmology, z)
+    lookback_time([u::Unitlike,] c::AbstractCosmology, z)
 
-Difference between age at redshift 0 and age at redshift `z` in Gyr. Will convert to compatible unit if provided.
+Difference between age at redshift 0 and age at redshift `z` in Gyr. Will convert to compatible unit `u` if provided.
 """
 lookback_time(c::AbstractCosmology, z; kws...) = hubble_time0(c) * T(c, scale_factor(z), 1; kws...)
 
