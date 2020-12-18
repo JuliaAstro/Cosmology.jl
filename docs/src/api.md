@@ -5,7 +5,6 @@ DocTestSetup = :(using Cosmology, Unitful, UnitfulAstro)
 # API/Reference
 
 !!! tip "Unitful"
-
   [Unitful.jl](https://github.com/painterqubits/Unitful.jl) works seamlessly with Cosmology.jl. In order to use its features, make sure it is installed and imported, along with [UnitfulAstro](https://github.com/juliaastro/UnitfulAstro.jl).
   ```julia
   pkg> add Unitful UnitfulAstro
