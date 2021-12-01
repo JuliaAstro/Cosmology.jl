@@ -1,8 +1,8 @@
 module Cosmology
 
 using QuadGK, Unitful
-import Unitful: km, s
-using UnitfulAstro: Mpc, Gpc, Gyr
+import Unitful: km, s, Gyr
+using UnitfulAstro: Mpc, Gpc
 
 export cosmology,
        age,
