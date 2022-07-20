@@ -172,7 +172,7 @@ H(c::AbstractCosmology, z) = 100 * c.h * E(c, z) * km / s / Mpc
 hubble_dist0(c::AbstractCosmology) = 2997.92458 / c.h * Mpc
 hubble_dist(c::AbstractCosmology, z) = hubble_dist0(c) / E(c, z)
 
-hubble_time0(c::AbstractCosmology) = 9.77814 / c.h * Gyr
+hubble_time0(c::AbstractCosmology) = 9.777922216807891 / c.h * Gyr
 hubble_time(c::AbstractCosmology, z) = hubble_time0(c) / E(c, z)
 
 # distances
