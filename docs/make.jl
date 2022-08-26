@@ -4,6 +4,7 @@ using Cosmology
 
 DocMeta.setdocmeta!(Cosmology, :DocTestSetup, :(using Cosmology); recursive = true)
 
+include("pages.jl")
 
 makedocs(;
     modules = [Cosmology],
@@ -14,10 +15,7 @@ makedocs(;
         prettyurls = get(ENV, "CI", "false") == "true",
         canonical = "https://juliaastro.github.io/Cosmology.jl",
         assets = String[],),
-    pages = [
-        "Home" => "index.md",
-        "API/Reference" => "api.md"
-    ],)
+    pages=pages,)
 
 deploydocs(;
     repo = "github.com/JuliaAstro/Cosmology.jl",)
