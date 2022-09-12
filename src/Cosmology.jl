@@ -3,6 +3,8 @@ module Cosmology
 using QuadGK, Unitful
 import Unitful: km, s, Gyr
 using UnitfulAstro: Mpc, Gpc
+using DifferentialEquations
+
 
 export cosmology,
        age,
@@ -17,88 +19,102 @@ export cosmology,
        hubble_time,
        luminosity_dist,
        lookback_time,
-       scale_factor
+       scale_factor,
+       f_DE,
+       growth_factor,
+       σ_T, m_H, m_He, m_p
+
+
+# Thomson scattering cross section
+const σ_T = 2.546617863799246e41
+# Mass of the Hydrogen atom
+const m_H = 7.690195407123562e-20
+# Mass of the Helium atom
+const m_He = 3.0538317277758185e-19
+# Mass of the proton
+const m_p = 7.685126339343148e-20
+
+
+const H0units = km/s/Mpc
+const ρx_over_ωx = 3(100H0units)^2/(8π)
 
 abstract type AbstractCosmology end
 abstract type AbstractClosedCosmology <: AbstractCosmology end
 abstract type AbstractFlatCosmology <: AbstractCosmology end
 abstract type AbstractOpenCosmology <: AbstractCosmology end
 
-struct FlatLCDM{T <: Real} <: AbstractFlatCosmology
-    h::T
-    Ω_Λ::T
-    Ω_m::T
-    Ω_r::T
+
+for model in ("LCDM", "WCDM")
+    for curv in ("Flat", "Open", "Closed")
+        name = Symbol("$(curv)$(model)")
+        @eval begin
+            Base.@kwdef struct $(name){N <: Real} <: $(Symbol("Abstract$(curv)Cosmology"))
+                h::N = 0.67
+                Ω_k::N = 0
+                Ω_c::N = 0.3
+                Ω_b::N = 0
+                Neff::N = 3.04
+                T_cmb::N = 2.755
+                w0::N = -1
+                wa::N = 0
+
+                # Derived densities
+                Ω_γ::N = 4.48131e-7 * T_cmb^4 / h^2
+                Ω_ν::N = Neff * Ω_γ * (7 / 8) * (4 / 11)^(4 / 3)
+                Ω_r::N = Ω_γ + Ω_ν
+                Ω_m::N = Ω_c + Ω_b
+                Ω_Λ::N = 1. - Ω_m - Ω_r - Ω_k  
+                
+
+            end
+            function $(name)(args...)
+                $(name)(promote(map(float, args)...)...)
+            end
+            function $(name)(;kwargs...)
+                $(name)(;promote(map(float, kwargs)...)...)
+            end
+            
+        end
+    end
+    @eval begin
+        function $(Symbol("$model"))(;kwargs...)
+            kwargs = Dict(kwargs)
+            Ω_k = haskey(kwargs, :Ω_k) ? kwargs[:Ω_k] : 0.
+            if Ω_k < 0
+                $(Symbol("Closed$(model)"))(;kwargs...)
+            elseif Ω_k > 0
+                $(Symbol("Open$(model)"))(;kwargs...)
+            else
+                $(Symbol("Flat$(model)"))(;kwargs...)
+            end
+        end
+    end
+    @eval begin
+        function $(Symbol("$model"))(args...)
+            Ω_k = args[2]
+            if Ω_k < 0
+                $(Symbol("Closed$(model)"))(args...)
+            elseif Ω_k > 0
+                $(Symbol("Open$(model)"))(args...)
+            else
+                $(Symbol("Flat$(model)"))(args...)
+            end
+        end
+    end
+
 end
-FlatLCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
-    FlatLCDM(promote(float(h), float(Ω_Λ), float(Ω_m), float(Ω_r))...)
 
-
-a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
-
-struct ClosedLCDM{T <: Real} <: AbstractClosedCosmology
-    h::T
-    Ω_k::T
-    Ω_Λ::T
-    Ω_m::T
-    Ω_r::T
-end
-ClosedLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
-    ClosedLCDM(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
-                       float(Ω_r))...)
-
-
-struct OpenLCDM{T <: Real} <: AbstractOpenCosmology
-    h::T
-    Ω_k::T
-    Ω_Λ::T
-    Ω_m::T
-    Ω_r::T
-end
-OpenLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
-    OpenLCDM(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
-                     float(Ω_r))...)
-
-
-function a2E(c::Union{ClosedLCDM,OpenLCDM}, a)
+function a2E(c::Union{FlatLCDM,ClosedLCDM,OpenLCDM}, a)
     a2 = a * a
     sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
 end
-
-for c in ("Flat", "Open", "Closed")
-    name = Symbol("$(c)WCDM")
-    @eval begin
-        struct $(name){T <: Real} <: $(Symbol("Abstract$(c)Cosmology"))
-            h::T
-            Ω_k::T
-            Ω_Λ::T
-            Ω_m::T
-            Ω_r::T
-            w0::T
-            wa::T
-        end
-        function $(name)(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real,
-                         w0::Real, wa::Real)
-            $(name)(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
-                            float(Ω_r), float(w0), float(wa))...)
-        end
-    end
-end
-
-function WCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real, w0::Real, wa::Real)
-    if Ω_k < 0
-        ClosedWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
-    elseif Ω_k > 0
-        OpenWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
-    else
-        FlatWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
-    end
-end
+f_DE(c::Union{FlatLCDM,ClosedLCDM,OpenLCDM}, a) = 0
 
 function a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
     ade = exp((1 - 3 * (c.w0 + c.wa)) * log(a) + 3 * c.wa * (a - 1))
     sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade)
 end
+f_DE(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a) = (-3 * (1 + c.w0) + 3 * c.wa * ((a - 1) / log(a - 1e-5) - 1))
 
 """
     cosmology(;h = 0.69,
@@ -136,31 +152,32 @@ Cosmology.ClosedWCDM{Float64}(0.69, -0.1, 0.8099122024007929, 0.29, 8.7797599207
 function cosmology(;h = 0.69,
                    Neff = 3.04,
                    OmegaK = 0,
-                   OmegaM = 0.29,
+                   OmegaC = 0.25,
+                   OmegaB = 0.05,
                    OmegaR = nothing,
+                   OmegaM = nothing,
                    Tcmb = 2.7255,
                    w0 = -1,
-    wa = 0)
-
-    if OmegaR === nothing
-        OmegaG = 4.48131e-7 * Tcmb^4 / h^2
-        OmegaN = Neff * OmegaG * (7 / 8) * (4 / 11)^(4 / 3)
-        OmegaR = OmegaG + OmegaN
+                   wa = 0)
+    
+    if !(OmegaR === nothing)
+        Tcmb = 0.
+        Neff = 0.
     end
 
-    OmegaL = 1 - OmegaK - OmegaM - OmegaR
+    if !(OmegaM === nothing)
+        OmegaC = OmegaM
+        OmegaB = 0.
+    end
+
 
     if !(w0 == -1 && wa == 0)
-        return WCDM(h, OmegaK, OmegaL, OmegaM, OmegaR, w0, wa)
+        return WCDM(;h = h, Ω_k = OmegaK, Ω_c = OmegaC, Ω_b = OmegaB, Neff = Neff, T_cmb = Tcmb, w0 = w0, wa = wa)
+    else
+        return LCDM(;h = h, Ω_k = OmegaK, Ω_c = OmegaC, Ω_b = OmegaB, Neff = Neff, T_cmb = Tcmb, w0 = w0, wa = wa)
     end
 
-    if OmegaK < 0
-        return ClosedLCDM(h, OmegaK, OmegaL, OmegaM, OmegaR)
-        elseif OmegaK > 0
-        return OpenLCDM(h, OmegaK, OmegaL, OmegaM, OmegaR)
-        else
-        return FlatLCDM(h, OmegaL, OmegaM, OmegaR)
-    end
+    
 end
 
 # hubble rate
@@ -287,4 +304,71 @@ for f in (:hubble_dist0, :hubble_dist, :hubble_time0, :hubble_time, :comoving_ra
     @eval $f(u::Unitful.Unitlike, args...; kws...) = uconvert(u, $f(args...; kws...))
 end
 
+# Density evolution
+
+OmegaM(c::AbstractCosmology, z) = c.Ω_m * (1 + z)^3 / E(c, z)^2
+OmegaDE(c::AbstractCosmology, z) = c.Ω_Λ * scale_factor(z)^f_DE(c, scale_factor(z)) / E(c, z)^2
+
+
+
+
+
+
+# Growth of structure
+
+function growth_derivatives!(du, u, c, a)
+
+    # Ex 1.118 in Leclerq's thesis shows the equation
+    # satisfied by the second order growth factor
+    
+    D_1, D_1′, D_2, D_2′ = u
+    z = 1 / a - 1
+    Omega_m = OmegaM(c, z)
+    Omega_de = OmegaDE(c, z)
+
+    D_1′′ = 1.5 * Omega_m * D_1 / a^2 - (Omega_de - 0.5 * Omega_m + 2) * D_1′ / a
+    D_2′′ = 1.5 * Omega_m * (D_2 - D_1^2) / a^2 - (Omega_de - 0.5 * Omega_m + 2) * D_2′ / a
+
+    du[1] = D_1′
+    du[2] = D_1′′
+    du[3] = D_2′
+    du[4] = D_2′′
+    return du
+
+end
+
+function growth_factor(c::AbstractCosmology, a::Vector{<:Real})
+    """
+    Returns growth factors and rates at scale factor a
+    Returns: D1(a), D1′(a), D1''(a), D2(a), D2′(a), D2''(a)
+    """
+    a0 = 1e-2
+    aspan = (a0,1.)
+    a_save = a
+    push!(a_save, 1.)
+    D1_in = a0 # EdS conditions
+    D1′_in = 1.
+    D2_in = -3. * D1_in^2 / 7 # Approx eq. 1.119 at tau = 0, Eds implies Om = 1
+    D2′_in = -6* D1_in / 7
+    u0 = [D1_in, D1′_in, D2_in, D2′_in]
+    prob = ODEProblem(growth_derivatives!,u0,aspan,c)
+    sol = solve(prob, saveat = a_save)
+    D1 = sol[1,:] ./ sol[1,end]
+    D1′ = sol[2,:] ./ sol[1,end]
+    D2 = sol[3,:] ./ sol[3,end]
+    D2′ = sol[4,:] ./ sol[1,end]
+    du = similar(u0)
+    D1′′ = similar(a_save)
+    D2′′ = similar(a_save)
+    for i in eachindex(a_save)
+        growth_derivatives!(du, sol[:,i], c, a_save[i])
+        D1′′[i] = du[2] / sol[1,end]
+        D2′′[i] = du[4] / sol[3,end]
+    end
+    return D1, D1′, D1′′, D2, D2′, D2′′
+end
+
+
+
 end # module
+
