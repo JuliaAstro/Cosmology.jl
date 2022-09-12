@@ -25,18 +25,6 @@ export cosmology,
        σ_T, m_H, m_He, m_p
 
 
-# Thomson scattering cross section
-const σ_T = 2.546617863799246e41
-# Mass of the Hydrogen atom
-const m_H = 7.690195407123562e-20
-# Mass of the Helium atom
-const m_He = 3.0538317277758185e-19
-# Mass of the proton
-const m_p = 7.685126339343148e-20
-
-
-const H0units = km/s/Mpc
-const ρx_over_ωx = 3(100H0units)^2/(8π)
 
 abstract type AbstractCosmology end
 abstract type AbstractClosedCosmology <: AbstractCosmology end
