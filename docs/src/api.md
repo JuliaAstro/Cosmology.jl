@@ -1,5 +1,8 @@
 ```@meta
-DocTestSetup = :(using Cosmology, Unitful, UnitfulAstro)
+DocTestSetup = quote
+    using Cosmology, Unitful, UnitfulAstro
+    ENV["UNITFUL_FANCY_EXPONENTS"] = false
+end
 ```
 
 # API/Reference
@@ -62,7 +65,7 @@ julia> c = cosmology(OmegaM=0.26)
 Cosmology.FlatLCDM{Float64}(0.69, 0.7399122024007928, 0.26, 8.77975992071536e-5)
 
 julia> comoving_volume_element(c, 2.1)
-46.74459228888612 Gpc^3
+46.74459228888613 Gpc^3
 
 julia> comoving_volume(c, 0.6)
 49.3633436631307 Gpc^3
@@ -84,8 +87,8 @@ julia> c = cosmology(OmegaM=0.26)
 Cosmology.FlatLCDM{Float64}(0.69, 0.7399122024007928, 0.26, 8.77975992071536e-5)
 
 julia> age(c, 1.2)
-5.445600787626434 Gyr
+5.4454795007229455 Gyr
 
 julia> lookback_time(u"yr", c, 1.2)
-8.761660748088268e9 yr
+8.761465604385489e9 yr
 ```
