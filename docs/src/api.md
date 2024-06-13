@@ -1,5 +1,8 @@
 ```@meta
-DocTestSetup = :(using Cosmology, Unitful, UnitfulAstro)
+DocTestSetup = quote
+    using Cosmology, Unitful, UnitfulAstro
+    ENV["UNITFUL_FANCY_EXPONENTS"] = false
+end
 ```
 
 # API/Reference
