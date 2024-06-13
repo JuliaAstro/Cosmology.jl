@@ -1,6 +1,7 @@
 module Cosmology
 
-using QuadGK, Unitful
+using QuadGK
+using Unitful
 import Unitful: km, s, Gyr
 using UnitfulAstro: Mpc, Gpc
 
@@ -187,7 +188,9 @@ comoving_radial_dist(c::AbstractCosmology, z₁, z₂ = nothing; kws...) = hubbl
 """
     comoving_radial_dist([u::Unitlike,] c::AbstractCosmology, [z₁,] z₂)
 
-Comoving radial distance in Mpc at redshift `z₂` as seen by an observer at `z₁`.  Redshift `z₁` defaults to 0 if omitted.  Will convert to compatible unit `u` if provided.
+Comoving radial distance in Mpc at redshift `z₂` as seen by an observer at `z₁`.
+Redshift `z₁` defaults to 0 if omitted.  Will convert to compatible unit `u` if
+provided.
 """
 comoving_radial_dist
 
@@ -211,7 +214,9 @@ angular_diameter_dist(c::AbstractCosmology, z₁, z₂; kws...) =
 """
     angular_diameter_dist([u::Unitlike,] c::AbstractCosmology, [z₁,] z₂)
 
-Ratio of the proper transverse size in Mpc of an object at redshift `z₂` to its angular size in radians, as seen by an observer at `z₁`.  Redshift `z₁` defaults to 0 if omitted.  Will convert to compatible unit `u` if provided.
+Ratio of the proper transverse size in Mpc of an object at redshift `z₂` to its
+angular size in radians, as seen by an observer at `z₁`.  Redshift `z₁` defaults
+to 0 if omitted.  Will convert to compatible unit `u` if provided.
 """
 angular_diameter_dist
 
@@ -221,7 +226,8 @@ luminosity_dist(c::AbstractCosmology, z; kws...) =
 """
     luminosity_dist([u::Unitlike,] c::AbstractCosmology, z)
 
-Bolometric luminosity distance in Mpc at redshift `z`. Will convert to compatible unit `u` if provided.
+Bolometric luminosity distance in Mpc at redshift `z`. Will convert to
+compatible unit `u` if provided.
 """
 luminosity_dist
 
@@ -266,6 +272,7 @@ comoving_volume_element(c::AbstractCosmology, z; kws...) =
 # times
 
 T(c::AbstractCosmology, a0, a1; kws...) = QuadGK.quadgk(x->x / a2E(c, x), a0, a1; kws...)[1]
+
 """
     age([u::Unitlike,] c::AbstractCosmology, z)
 
@@ -276,14 +283,17 @@ age(c::AbstractCosmology, z; kws...) = hubble_time0(c) * T(c, 0, scale_factor(z)
 """
     lookback_time([u::Unitlike,] c::AbstractCosmology, z)
 
-Difference between age at redshift 0 and age at redshift `z` in Gyr. Will convert to compatible unit `u` if provided.
+Difference between age at redshift 0 and age at redshift `z` in Gyr.
+Will convert to compatible unit `u` if provided.
 """
 lookback_time(c::AbstractCosmology, z; kws...) = hubble_time0(c) * T(c, scale_factor(z), 1; kws...)
 
 # Easily select a different unit
-for f in (:hubble_dist0, :hubble_dist, :hubble_time0, :hubble_time, :comoving_radial_dist,
-          :comoving_transverse_dist, :angular_diameter_dist, :luminosity_dist,
-          :comoving_volume, :comoving_volume_element, :age, :lookback_time)
+for f in (:hubble_dist0, :hubble_dist, :hubble_time0, :hubble_time,
+          :comoving_radial_dist, :comoving_transverse_dist,
+          :angular_diameter_dist, :luminosity_dist,
+          :comoving_volume, :comoving_volume_element,
+          :age, :lookback_time)
     @eval $f(u::Unitful.Unitlike, args...; kws...) = uconvert(u, $f(args...; kws...))
 end
 
