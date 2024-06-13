@@ -13,6 +13,7 @@ age_rtol = 2e-4
 # strip the units away from the integrand function
 integrand(c, z) = 4pi*ustrip(comoving_volume_element(c, z))
 
+
 @testset "FlatLCDM" begin
     c = cosmology(h=0.7, OmegaM=0.3, OmegaR=0)
     @test angular_diameter_dist(c,1,rtol=dist_rtol) ≈ 1651.9145u"Mpc" rtol = dist_rtol
@@ -27,6 +28,15 @@ integrand(c, z) = 4pi*ustrip(comoving_volume_element(c, z))
     @test age(c,1,rtol=age_rtol) ≈ 5.7527u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ (13.4694-5.7527)u"Gyr" rtol = age_rtol
     @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0)
+    z = 0.5
+    a = Cosmology.scale_factor(z)
+    @test Cosmology.E(c, z) ≈ sqrt(c.Ω_r * a^-4 + c.Ω_m * a^-3 + c.Ω_Λ * a^f_DE(c, a))
+    growth_res = growth_factor(c,[a])
+    @test growth_res[1][1] ≈ 0.7729844 rtol = 1e-3
+    @test growth_res[2][1] ≈ 0.86867464 rtol = 1e-3
+    @test growth_res[3][1] ≈ -1.2082956 rtol = 1e-1
+    
+    
 end
 
 @testset "OpenLCDM" begin
@@ -43,6 +53,9 @@ end
     @test age(c,1,rtol=age_rtol) ≈ 5.5466u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ (13.064-5.5466)u"Gyr" rtol = age_rtol
     @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0)
+    z = 0.5
+    a = Cosmology.scale_factor(z)
+    @test Cosmology.E(c, z) ≈ sqrt(c.Ω_k * a^-2 + c.Ω_r * a^-4 + c.Ω_m * a^-3 + c.Ω_Λ * a^f_DE(c, a))
 end
 
 @testset "ClosedLCDM" begin
@@ -59,6 +72,9 @@ end
     @test age(c,1,rtol=age_rtol) ≈ 5.9868u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ (13.925-5.9868)u"Gyr" rtol = age_rtol
     @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0)
+    z = 0.5
+    a = Cosmology.scale_factor(z)
+    @test Cosmology.E(c, z) ≈ sqrt(c.Ω_k * a^-2 + c.Ω_r * a^-4 + c.Ω_m * a^-3 + c.Ω_Λ * a^f_DE(c, a))
 end
 
 @testset "FlatWCDM" begin
@@ -75,6 +91,9 @@ end
     @test age(c,1,rtol=age_rtol) ≈ 5.6464u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ (13.1915-5.6464)u"Gyr" rtol = age_rtol
     @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0)
+    z = 0.5
+    a = Cosmology.scale_factor(z)
+    @test Cosmology.E(c, z) ≈ sqrt(c.Ω_k * a^-2 + c.Ω_r * a^-4 + c.Ω_m * a^-3 + c.Ω_Λ * a^f_DE(c, a)) rtol = 1e-4
 end
 
 @testset "OpenWCDM" begin
@@ -91,6 +110,9 @@ end
     @test age(c,1,rtol=age_rtol) ≈ 5.4659u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ (12.8488-5.4659)u"Gyr" rtol = age_rtol
     @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0)
+    z = 0.5
+    a = Cosmology.scale_factor(z)
+    @test Cosmology.E(c, z) ≈ sqrt(c.Ω_k * a^-2 + c.Ω_r * a^-4 + c.Ω_m * a^-3 + c.Ω_Λ * a^f_DE(c, a)) rtol = 1e-4
 end
 
 @testset "ClosedWCDM" begin
@@ -107,6 +129,9 @@ end
     @test age(c,1,rtol=age_rtol) ≈ 5.8482u"Gyr" rtol = age_rtol
     @test lookback_time(c,1,rtol=age_rtol) ≈ (13.5702-5.8482)u"Gyr" rtol = age_rtol
     @test age(c, 1) + lookback_time(c, 1) ≈ age(c, 0)
+    z = 0.5
+    a = Cosmology.scale_factor(z)
+    @test Cosmology.E(c, z) ≈ sqrt(c.Ω_k * a^-2 + c.Ω_r * a^-4 + c.Ω_m * a^-3 + c.Ω_Λ * a^f_DE(c, a)) rtol = 1e-4
 end
 
 @testset "Non-Float64" begin
@@ -138,7 +163,12 @@ end
 
 @testset "Utilities" begin
     c = cosmology(h = 0.7)
+    cw = cosmology(h = 0.7, w0 = -1, wa = 0.1)
     @test hubble_time(c, 0) ≈ Cosmology.hubble_time0(c)
     @test hubble_dist(c, 0) ≈ Cosmology.hubble_dist0(c)
     @test H(c, 0) ≈ 70u"km/s/Mpc"
+    
 end
+
+
+
