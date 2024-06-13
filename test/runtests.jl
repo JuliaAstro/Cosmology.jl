@@ -1,5 +1,9 @@
 using Cosmology
 using Test, Unitful, UnitfulAstro, QuadGK
+using Documenter
+
+DocMeta.setdocmeta!(Cosmology, :DocTestSetup, :(using Cosmology); recursive = true)
+doctest(Cosmology)
 
 # values from http://icosmos.co.uk/
 
