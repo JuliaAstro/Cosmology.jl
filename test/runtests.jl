@@ -4,8 +4,14 @@ using Documenter
 
 @testset "Cosmology" begin
 
-    DocMeta.setdocmeta!(Cosmology, :DocTestSetup, :(using Cosmology); recursive = true)
-    doctest(Cosmology)
+    # Doctest is good for CI, but has variation in system to system. For now,
+    # only run on supported systems as a measure that the docs are reasonably
+    # accurate.
+    doctest_conds = Bool[Sys.islinux(), Sys.ARCH == :x86_64]
+    if all(doctest_conds)
+        DocMeta.setdocmeta!(Cosmology, :DocTestSetup, :(using Cosmology); recursive = true)
+        doctest(Cosmology)
+    end
 
     # values from http://icosmos.co.uk/
 
