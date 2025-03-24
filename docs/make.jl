@@ -16,8 +16,8 @@ makedocs(;
         prettyurls = get(ENV, "CI", "false") == "true",
         canonical = "https://juliaastro.github.io/Cosmology.jl",
         assets = String[],
-   ),
-    pages=pages,
+    ),
+    pages,
 )
 
 deploydocs(;

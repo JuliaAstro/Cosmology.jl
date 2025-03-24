@@ -10,7 +10,7 @@ end
 
 !!! tip "Unitful"
     [Unitful.jl](https://github.com/painterqubits/Unitful.jl) works seamlessly with Cosmology.jl. In order to use its features, make sure it is installed and imported, along with [UnitfulAstro](https://github.com/juliaastro/UnitfulAstro.jl).
-    ```julia
+    ```julia-repl
     pkg> add Unitful UnitfulAstro
     julia> using Unitful, UnitfulAstro
     ```
