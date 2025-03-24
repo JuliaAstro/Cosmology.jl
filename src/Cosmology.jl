@@ -114,11 +114,11 @@ end
 
 # Parameters
 * `h` - Dimensionless Hubble constant
+* `Neff` - Effective number of massless neutrino species; used to compute Ω_ν
 * `OmegaK` - Curvature density (Ω_k)
 * `OmegaM` - Matter density (Ω_m)
 * `OmegaR` - Radiation density (Ω_r)
 * `Tcmb` - CMB temperature in Kelvin; used to compute Ω_γ
-* `Neff` - Effective number of massless neutrino species; used to compute Ω_ν
 * `w0` - CPL dark energy equation of state; `w = w0 + wa(1-a)`
 * `wa` - CPL dark energy equation of state; `w = w0 + wa(1-a)`
 
