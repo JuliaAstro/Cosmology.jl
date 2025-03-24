@@ -228,6 +228,22 @@ Z(c::AbstractCosmology, z::Real, ::Nothing; kws...) =
     quadgk(a->1 / a2E(c, a), scale_factor(z), 1; kws...)[1]
 Z(c::AbstractCosmology, z₁::Real, z₂::Real; kws...) =
     quadgk(a->1 / a2E(c, a), scale_factor(z₂), scale_factor(z₁); kws...)[1]
+@doc raw"""
+    Z(c::AbstractCosmology, z, nothing; kws...)
+    Z(c::AbstractCosmology, z₁, z₂; kws...)
+
+TODO
+
+Mathematical definition:
+```math
+Z = \int_{1/(1+z)}^1 \frac{1}{a^2 E(a)} da
+```
+or
+```math
+Z = \int_{1/(1+z_2)}^{1/(1+z_1)} \frac{1}{a^2 E(a)} da
+```
+"""
+Z
 
 comoving_radial_dist(c::AbstractCosmology, z₁, z₂ = nothing; kws...) = hubble_dist0(c) * Z(c, z₁, z₂; kws...)
 
