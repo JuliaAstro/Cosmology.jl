@@ -57,6 +57,7 @@ OpenLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
                      float(Ω_r))...)
 
 
+# define WCDM models, which includes a cosmological equation of state parameter w.
 for c in ("Flat", "Open", "Closed")
     name = Symbol("$(c)WCDM")
     @eval begin
