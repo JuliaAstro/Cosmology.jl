@@ -1,6 +1,6 @@
 module Cosmology
 
-using QuadGK
+using QuadGK: quadgk
 using Unitful
 import Unitful: km, s, Gyr
 using UnitfulAstro: Mpc, Gpc
@@ -141,7 +141,7 @@ function cosmology(;h = 0.69,
                    OmegaR = nothing,
                    Tcmb = 2.7255,
                    w0 = -1,
-    wa = 0)
+                   wa = 0)
 
     if OmegaR === nothing
         OmegaG = 4.48131e-7 * Tcmb^4 / h^2
@@ -157,9 +157,9 @@ function cosmology(;h = 0.69,
 
     if OmegaK < 0
         return ClosedLCDM(h, OmegaK, OmegaL, OmegaM, OmegaR)
-        elseif OmegaK > 0
+    elseif OmegaK > 0
         return OpenLCDM(h, OmegaK, OmegaL, OmegaM, OmegaR)
-        else
+    else
         return FlatLCDM(h, OmegaL, OmegaM, OmegaR)
     end
 end
@@ -179,9 +179,9 @@ hubble_time(c::AbstractCosmology, z) = hubble_time0(c) / E(c, z)
 # distances
 
 Z(c::AbstractCosmology, z::Real, ::Nothing; kws...) =
-    QuadGK.quadgk(a->1 / a2E(c, a), scale_factor(z), 1; kws...)[1]
+    quadgk(a->1 / a2E(c, a), scale_factor(z), 1; kws...)[1]
 Z(c::AbstractCosmology, z₁::Real, z₂::Real; kws...) =
-    QuadGK.quadgk(a->1 / a2E(c, a), scale_factor(z₂), scale_factor(z₁); kws...)[1]
+    quadgk(a->1 / a2E(c, a), scale_factor(z₂), scale_factor(z₁); kws...)[1]
 
 comoving_radial_dist(c::AbstractCosmology, z₁, z₂ = nothing; kws...) = hubble_dist0(c) * Z(c, z₁, z₂; kws...)
 
@@ -271,7 +271,7 @@ comoving_volume_element(c::AbstractCosmology, z; kws...) =
 
 # times
 
-T(c::AbstractCosmology, a0, a1; kws...) = QuadGK.quadgk(x->x / a2E(c, x), a0, a1; kws...)[1]
+T(c::AbstractCosmology, a0, a1; kws...) = quadgk(x->x / a2E(c, x), a0, a1; kws...)[1]
 
 """
     age([u::Unitlike,] c::AbstractCosmology, z)
