@@ -48,7 +48,6 @@ ClosedLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
     ClosedLCDM(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
                        float(Ω_r))...)
 
-
 struct OpenLCDM{T <: Real} <: AbstractOpenCosmology
     h::T
     Ω_k::T
@@ -166,8 +165,23 @@ end
 
 # hubble rate
 
+"""
+    scale_factor(z)
+
+Return the scale factor ``a(t)`` for a given redshift ``z(t)``. According to
+the FLRW metric it's given as ``a = 1/(1 + z)``.
+"""
 scale_factor(z) = 1 / (1 + z)
 E(c::AbstractCosmology, z) = (a = scale_factor(z); a2E(c, a) / a^2)
+"""
+    H(c::AbstractCosmology, z)
+
+Hubble parameter at redshift `z`.
+
+```math
+H(z) = (100\\mathrm{km/s/Mpc}) h E(z)
+```
+"""
 H(c::AbstractCosmology, z) = 100 * c.h * E(c, z) * km / s / Mpc
 
 hubble_dist0(c::AbstractCosmology) = 2997.92458 / c.h * Mpc
