@@ -34,9 +34,6 @@ end
 FlatLCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
     FlatLCDM(promote(float(h), float(Ω_Λ), float(Ω_m), float(Ω_r))...)
 
-
-a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
-
 struct ClosedLCDM{T <: Real} <: AbstractClosedCosmology
     h::T
     Ω_k::T
@@ -59,11 +56,6 @@ OpenLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
     OpenLCDM(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
                      float(Ω_r))...)
 
-
-function a2E(c::Union{ClosedLCDM,OpenLCDM}, a)
-    a2 = a * a
-    sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
-end
 
 for c in ("Flat", "Open", "Closed")
     name = Symbol("$(c)WCDM")
@@ -95,7 +87,13 @@ function WCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real, w0::Real
     end
 end
 
+a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
+function a2E(c::Union{ClosedLCDM,OpenLCDM}, a)
+    a2 = a * a
+    sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
+end
 function a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
+    # dark energy scale factor
     ade = exp((1 - 3 * (c.w0 + c.wa)) * log(a) + 3 * c.wa * (a - 1))
     sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade)
 end
