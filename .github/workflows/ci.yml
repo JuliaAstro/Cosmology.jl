@@ -40,16 +40,3 @@ jobs:
         with:
           files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
-
-  Documentation:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@latest
-        with:
-          version: 1
-      - name: Cache artifacts
-        uses: julia-actions/cache@v2
-      - uses: julia-actions/julia-docdeploy@releases/v1
-        env:
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
