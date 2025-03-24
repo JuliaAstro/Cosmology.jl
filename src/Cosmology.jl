@@ -109,14 +109,14 @@ a2E
 
 
 """
-    cosmology(;h = 0.69,
-               Neff = 3.04,
-               OmegaK = 0,
-               OmegaM = 0.29,
-               OmegaR = nothing,
-               Tcmb = 2.7255,
-               w0 = -1,
-               wa = 0)
+    cosmology(; h = 0.69,
+                Neff = 3.04,
+                OmegaK = 0,
+                OmegaM = 0.29,
+                OmegaR = nothing,
+                Tcmb = 2.7255,
+                w0 = -1,
+                wa = 0)
 
 
 # Parameters
