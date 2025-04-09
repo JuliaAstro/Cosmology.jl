@@ -1,6 +1,6 @@
 module Cosmology
 
-using QuadGK
+using QuadGK: quadgk
 using Unitful
 import Unitful: km, s, Gyr
 using UnitfulAstro: Mpc, Gpc
@@ -34,9 +34,6 @@ end
 FlatLCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
     FlatLCDM(promote(float(h), float(Ω_Λ), float(Ω_m), float(Ω_r))...)
 
-
-a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
-
 struct ClosedLCDM{T <: Real} <: AbstractClosedCosmology
     h::T
     Ω_k::T
@@ -47,7 +44,6 @@ end
 ClosedLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
     ClosedLCDM(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
                        float(Ω_r))...)
-
 
 struct OpenLCDM{T <: Real} <: AbstractOpenCosmology
     h::T
@@ -61,11 +57,7 @@ OpenLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
                      float(Ω_r))...)
 
 
-function a2E(c::Union{ClosedLCDM,OpenLCDM}, a)
-    a2 = a * a
-    sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
-end
-
+# define WCDM models, which includes a cosmological equation of state parameter w.
 for c in ("Flat", "Open", "Closed")
     name = Symbol("$(c)WCDM")
     @eval begin
@@ -96,29 +88,44 @@ function WCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real, w0::Real
     end
 end
 
+a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
+function a2E(c::Union{ClosedLCDM,OpenLCDM}, a)
+    a2 = a * a
+    sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
+end
 function a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
+    # dark energy scale factor
     ade = exp((1 - 3 * (c.w0 + c.wa)) * log(a) + 3 * c.wa * (a - 1))
     sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade)
 end
+"""
+    a2E(c::AbstractCosmology, a)
+
+
+Calculates the intermediate quantity ``a^2 E(a)``.
+This is an internal function used to simplify computation.
+"""
+a2E
+
 
 """
-    cosmology(;h = 0.69,
-               Neff = 3.04,
-               OmegaK = 0,
-               OmegaM = 0.29,
-               OmegaR = nothing,
-               Tcmb = 2.7255,
-               w0 = -1,
-               wa = 0)
+    cosmology(; h = 0.69,
+                Neff = 3.04,
+                OmegaK = 0,
+                OmegaM = 0.29,
+                OmegaR = nothing,
+                Tcmb = 2.7255,
+                w0 = -1,
+                wa = 0)
 
 
 # Parameters
 * `h` - Dimensionless Hubble constant
+* `Neff` - Effective number of massless neutrino species; used to compute Ω_ν
 * `OmegaK` - Curvature density (Ω_k)
 * `OmegaM` - Matter density (Ω_m)
 * `OmegaR` - Radiation density (Ω_r)
 * `Tcmb` - CMB temperature in Kelvin; used to compute Ω_γ
-* `Neff` - Effective number of massless neutrino species; used to compute Ω_ν
 * `w0` - CPL dark energy equation of state; `w = w0 + wa(1-a)`
 * `wa` - CPL dark energy equation of state; `w = w0 + wa(1-a)`
 
@@ -141,7 +148,7 @@ function cosmology(;h = 0.69,
                    OmegaR = nothing,
                    Tcmb = 2.7255,
                    w0 = -1,
-    wa = 0)
+                   wa = 0)
 
     if OmegaR === nothing
         OmegaG = 4.48131e-7 * Tcmb^4 / h^2
@@ -157,17 +164,56 @@ function cosmology(;h = 0.69,
 
     if OmegaK < 0
         return ClosedLCDM(h, OmegaK, OmegaL, OmegaM, OmegaR)
-        elseif OmegaK > 0
+    elseif OmegaK > 0
         return OpenLCDM(h, OmegaK, OmegaL, OmegaM, OmegaR)
-        else
+    else
         return FlatLCDM(h, OmegaL, OmegaM, OmegaR)
     end
 end
 
 # hubble rate
 
+"""
+    scale_factor(z)
+
+Return the scale factor ``a(t)`` for a given redshift ``z(t)``. According to
+the FLRW metric it's given as ``a = 1/(1 + z)``.
+"""
 scale_factor(z) = 1 / (1 + z)
+
+@doc raw"""
+    E(c::AbstractCosmology, z)
+
+Dimensionless Hubble parameter ``E(z)`` at redshift `z`. It's defined as
+```math
+E(z) ≡ \frac{H(z)}{(100\mathrm{km/s/Mpc}) h}
+```
+where ``a = 1/(1+z)``.
+
+Mathematical formulation (for LCDM models):
+```math
+a^2 E(a) = \begin{cases}
+\sqrt{Ω_r + Ω_m a + Ω_Λ a^4} & \text{if flat} \\
+\sqrt{Ω_r + Ω_m a + (Ω_k + Ω_Λ a^2) a^2} & \text{otherwise}
+\end{cases}
+```
+
+Mathematical formulation (for WCDM models):
+```math
+a^2 E(a) = \sqrt{Ω_r + (Ω_m + Ω_k a) a + Ω_Λ a_{de}}
+```
+where ``a_{de} = \exp((1 - 3 w_0 - 3 w_a) \log(a) + 3 w_a (a - 1))``
+"""
 E(c::AbstractCosmology, z) = (a = scale_factor(z); a2E(c, a) / a^2)
+"""
+    H(c::AbstractCosmology, z)
+
+Hubble parameter at redshift `z`.
+
+```math
+H(z) = (100\\mathrm{km/s/Mpc}) h E(z)
+```
+"""
 H(c::AbstractCosmology, z) = 100 * c.h * E(c, z) * km / s / Mpc
 
 hubble_dist0(c::AbstractCosmology) = 2997.92458 / c.h * Mpc
@@ -179,9 +225,25 @@ hubble_time(c::AbstractCosmology, z) = hubble_time0(c) / E(c, z)
 # distances
 
 Z(c::AbstractCosmology, z::Real, ::Nothing; kws...) =
-    QuadGK.quadgk(a->1 / a2E(c, a), scale_factor(z), 1; kws...)[1]
+    quadgk(a->1 / a2E(c, a), scale_factor(z), 1; kws...)[1]
 Z(c::AbstractCosmology, z₁::Real, z₂::Real; kws...) =
-    QuadGK.quadgk(a->1 / a2E(c, a), scale_factor(z₂), scale_factor(z₁); kws...)[1]
+    quadgk(a->1 / a2E(c, a), scale_factor(z₂), scale_factor(z₁); kws...)[1]
+@doc raw"""
+    Z(c::AbstractCosmology, z, nothing; kws...)
+    Z(c::AbstractCosmology, z₁, z₂; kws...)
+
+TODO
+
+Mathematical definition:
+```math
+Z = \int_{1/(1+z)}^1 \frac{1}{a^2 E(a)} da
+```
+or
+```math
+Z = \int_{1/(1+z_2)}^{1/(1+z_1)} \frac{1}{a^2 E(a)} da
+```
+"""
+Z
 
 comoving_radial_dist(c::AbstractCosmology, z₁, z₂ = nothing; kws...) = hubble_dist0(c) * Z(c, z₁, z₂; kws...)
 
@@ -271,7 +333,7 @@ comoving_volume_element(c::AbstractCosmology, z; kws...) =
 
 # times
 
-T(c::AbstractCosmology, a0, a1; kws...) = QuadGK.quadgk(x->x / a2E(c, x), a0, a1; kws...)[1]
+T(c::AbstractCosmology, a0, a1; kws...) = quadgk(x->x / a2E(c, x), a0, a1; kws...)[1]
 
 """
     age([u::Unitlike,] c::AbstractCosmology, z)
