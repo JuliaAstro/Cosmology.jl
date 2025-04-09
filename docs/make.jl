@@ -22,4 +22,5 @@ makedocs(;
 
 deploydocs(;
     repo = "github.com/JuliaAstro/Cosmology.jl",
+    push_preview = true,
 )

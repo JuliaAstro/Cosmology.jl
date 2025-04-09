@@ -7,6 +7,11 @@ on:
   pull_request:
   release:
 
+permissions:
+  contents: write
+  pull-requests: read  # Required when using `push_preview=true`
+  statuses: write  # Optional, used to report documentation build statuses
+
 jobs:
   build:
     name: "Build and deploy"
@@ -21,3 +26,4 @@ jobs:
       - uses: julia-actions/julia-docdeploy@releases/v1
         env:
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
