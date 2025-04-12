@@ -93,3 +93,9 @@ julia> lookback_time(u"yr", c, 1.2)
 8.761465604385489e9 yr
 ```
 
+
+
+## Bibliography
+```@bibliography
+Pages = ["api.md"]
+```

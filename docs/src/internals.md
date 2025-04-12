@@ -7,4 +7,9 @@ Cosmology.E
 Cosmology.Z
 Cosmology.a2E
 Cosmology.scale_factor
+
+## Bibliography
+
+```@bibliography
+Pages = ["internals.md"]
 ```
