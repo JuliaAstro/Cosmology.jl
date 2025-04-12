@@ -93,11 +93,3 @@ julia> lookback_time(u"yr", c, 1.2)
 8.761465604385489e9 yr
 ```
 
-## Misc
-```@docs
-H
-Cosmology.E
-Cosmology.Z
-Cosmology.a2E
-Cosmology.scale_factor
-```

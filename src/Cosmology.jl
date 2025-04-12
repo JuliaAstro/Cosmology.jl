@@ -205,6 +205,7 @@ a^2 E(a) = \sqrt{Ω_r + (Ω_m + Ω_k a) a + Ω_Λ a_{de}}
 where ``a_{de} = \exp((1 - 3 w_0 - 3 w_a) \log(a) + 3 w_a (a - 1))``
 """
 E(c::AbstractCosmology, z) = (a = scale_factor(z); a2E(c, a) / a^2)
+
 """
     H(c::AbstractCosmology, z)
 
