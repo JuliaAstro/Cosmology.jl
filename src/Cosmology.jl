@@ -217,10 +217,44 @@ H(z) = (100\\mathrm{km/s/Mpc}) h E(z)
 """
 H(c::AbstractCosmology, z) = 100 * c.h * E(c, z) * km / s / Mpc
 
+"""
+    hubble_dist0(c::AbstractCosmology)
+
+Hubble distance at redshift 0.
+
+### See also
+[`hubble_dist`](@ref)
+"""
 hubble_dist0(c::AbstractCosmology) = 2997.92458 / c.h * Mpc
+"""
+    hubble_dist(c::AbstractCosmology, z)
+
+Hubble distance, defined as the product of the speed of light and the Hubble parameter.
+That is, ``c / H(z)``
+
+### See also
+[`hubble_time`](@ref)
+"""
 hubble_dist(c::AbstractCosmology, z) = hubble_dist0(c) / E(c, z)
 
+"""
+    hubble_time0(c::AbstractCosmology)
+
+Hubble time at redshift 0.
+
+### See also
+[`hubble_time`](@ref)
+"""
 hubble_time0(c::AbstractCosmology) = 9.777922216807891 / c.h * Gyr
+"""
+    hubble_time(c::AbstractCosmology, z)
+
+Hubble time, defined as the inverse of the Hubble parameter. That is,
+``t_H(z) = 1/H(z)``
+
+### See also
+[`hubble_dist`](@ref)
+"""
 hubble_time(c::AbstractCosmology, z) = hubble_time0(c) / E(c, z)
 
 # distances

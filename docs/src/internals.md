@@ -5,6 +5,9 @@ The following types and methods are internal, and should not be considered safe 
 Cosmology.E
 Cosmology.Z
 Cosmology.a2E
+Cosmology.hubble_dist0
+Cosmology.hubble_time0
+```
 
 ## Bibliography
 
