@@ -214,10 +214,6 @@ E(c::AbstractCosmology, z) = (a = scale_factor(z); a2E(c, a) / a^2)
     H(c::AbstractCosmology, z)
 
 Hubble parameter at redshift `z`.
-
-```math
-H(z) = (100\\mathrm{km/s/Mpc}) h E(z)
-```
 """
 H(c::AbstractCosmology, z) = 100 * c.h * E(c, z) * km / s / Mpc
 
@@ -271,7 +267,9 @@ Z(c::AbstractCosmology, z₁::Real, z₂::Real; kws...) =
     Z(c::AbstractCosmology, z, nothing; kws...)
     Z(c::AbstractCosmology, z₁, z₂; kws...)
 
-TODO
+TODO (Internal helper function for comoving distances)
+
+If `nothing` is used for the upper bound of integration, it defaults to `z₂ = 0`.
 
 Mathematical definition:
 ```math
