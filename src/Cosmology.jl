@@ -98,12 +98,26 @@ function a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
     ade = exp((1 - 3 * (c.w0 + c.wa)) * log(a) + 3 * c.wa * (a - 1))
     sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade)
 end
-"""
+@doc raw"""
     a2E(c::AbstractCosmology, a)
 
 
 Calculates the intermediate quantity ``a^2 E(a)``.
 This is an internal function used to simplify computation.
+
+Mathematical formulation (for LCDM models):
+```math
+a^2 E(a) = \begin{cases}
+\sqrt{Ω_r + Ω_m a + Ω_Λ a^4} & \text{if flat} \\
+\sqrt{Ω_r + Ω_m a + (Ω_k + Ω_Λ a^2) a^2} & \text{otherwise}
+\end{cases}
+```
+
+Mathematical formulation (for WCDM models):
+```math
+a^2 E(a) = \sqrt{Ω_r + (Ω_m + Ω_k a) a + Ω_Λ a_{de}}
+```
+where ``a_{de} = \exp[(1 - 3 w_0 - 3 w_a) \log(a) + 3 w_a (a - 1)]``
 """
 a2E
 
@@ -177,32 +191,22 @@ end
     scale_factor(z)
 
 Return the scale factor ``a(t)`` for a given redshift ``z(t)``. According to
-the FLRW metric it's given as ``a = 1/(1 + z)``.
+the [Friedmann–Lemaître–Robertson–Walker metric](https://en.wikipedia.org/wiki/Friedmann–Lemaître–Robertson–Walker_metric) it's given as ``a = 1/(1 + z)``
+([Schneider 2015, p. 186](@cite schneider2015)).
+
+A scale factor of 1, i.e., a redshift of 0, refers to the present epoch.
 """
 scale_factor(z) = 1 / (1 + z)
 
 @doc raw"""
     E(c::AbstractCosmology, z)
 
-Dimensionless Hubble parameter ``E(z)`` at redshift `z`. It's defined as
+Dimensionless Hubble function ``E(z)`` at redshift `z`. It's defined as
 ```math
-E(z) ≡ \frac{H(z)}{(100\mathrm{km/s/Mpc}) h}
+E(z) ≡ \frac{H(z)}{H_0} = \frac{H(z)}{(100\mathrm{km/s/Mpc}) h}
 ```
-where ``a = 1/(1+z)``.
-
-Mathematical formulation (for LCDM models):
-```math
-a^2 E(a) = \begin{cases}
-\sqrt{Ω_r + Ω_m a + Ω_Λ a^4} & \text{if flat} \\
-\sqrt{Ω_r + Ω_m a + (Ω_k + Ω_Λ a^2) a^2} & \text{otherwise}
-\end{cases}
-```
-
-Mathematical formulation (for WCDM models):
-```math
-a^2 E(a) = \sqrt{Ω_r + (Ω_m + Ω_k a) a + Ω_Λ a_{de}}
-```
-where ``a_{de} = \exp((1 - 3 w_0 - 3 w_a) \log(a) + 3 w_a (a - 1))``
+where ``H_0 = H(z=0)`` is the Hubble parameter at the present epoch
+([Schneider 2015, p. 183](@cite schneider2015)).
 """
 E(c::AbstractCosmology, z) = (a = scale_factor(z); a2E(c, a) / a^2)
 
