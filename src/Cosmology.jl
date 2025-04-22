@@ -273,12 +273,9 @@ If `nothing` is used for the upper bound of integration, it defaults to `z₂ = 
 
 Mathematical definition:
 ```math
-Z = \int_{1/(1+z)}^1 \frac{1}{a^2 E(a)} da
+Z = \int_{a_1}^{a_2} \frac{1}{a^2 E(a)} da
 ```
-or
-```math
-Z = \int_{1/(1+z_2)}^{1/(1+z_1)} \frac{1}{a^2 E(a)} da
-```
+where ``a_1 = 1/(1+z_1)`` and ``a_2 = 1/(1+z_2)``.
 """
 Z
 
