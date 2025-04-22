@@ -93,33 +93,35 @@ function a2E(c::Union{ClosedLCDM,OpenLCDM}, a)
     a2 = a * a
     sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
 end
-function a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
-    # dark energy scale factor
-    ade = exp((1 - 3 * (c.w0 + c.wa)) * log(a) + 3 * c.wa * (a - 1))
-    sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade)
-end
 @doc raw"""
-    a2E(c::AbstractCosmology, a)
+    a2E(c::Union{FlatLCDM,ClosedLCDM,OpenLCDM}, a)
 
 
 Calculates the intermediate quantity ``a^2 E(a)``.
 This is an internal function used to simplify computation.
 
-Mathematical formulation (for LCDM models):
+Mathematical formulation (for ΛCDM models):
 ```math
-a^2 E(a) = \begin{cases}
-\sqrt{Ω_r + Ω_m a + Ω_Λ a^4} & \text{if flat} \\
-\sqrt{Ω_r + Ω_m a + (Ω_k + Ω_Λ a^2) a^2} & \text{otherwise}
-\end{cases}
+a^2 E(a) = \sqrt{Ω_r + Ω_m a + Ω_k a^2 + Ω_Λ a^4}
 ```
+where ``Ω_k = 0`` for a flat cosmological model.
+"""
+a2E
+
+@doc raw"""
+    a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
 
 Mathematical formulation (for WCDM models):
 ```math
-a^2 E(a) = \sqrt{Ω_r + (Ω_m + Ω_k a) a + Ω_Λ a_{de}}
+a^2 E(a) = \sqrt{Ω_r + Ω_m a + Ω_k a^2 + Ω_Λ a_{de}}
 ```
 where ``a_{de} = \exp[(1 - 3 w_0 - 3 w_a) \log(a) + 3 w_a (a - 1)]``
 """
-a2E
+function a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
+    # dark energy scale factor
+    ade = exp((1 - 3 * (c.w0 + c.wa)) * log(a) + 3 * c.wa * (a - 1))
+    sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade)
+end
 
 
 """
@@ -190,8 +192,8 @@ end
 """
     scale_factor(z)
 
-Return the scale factor ``a(t)`` for a given redshift ``z(t)``. According to
-the [Friedmann–Lemaître–Robertson–Walker metric](https://en.wikipedia.org/wiki/Friedmann–Lemaître–Robertson–Walker_metric)
+Return the scale factor ``a(t)`` for a given redshift ``z(t)``. According to the
+[Friedmann–Lemaître–Robertson–Walker metric](https://en.wikipedia.org/wiki/Friedmann–Lemaître–Robertson–Walker_metric)
 it's given as ``a = 1/(1 + z)`` ([Schneider 2015, p. 186](@cite schneider2015)).
 
 A scale factor of 1, i.e., a redshift of 0, refers to the present epoch.
