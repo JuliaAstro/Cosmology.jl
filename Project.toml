@@ -3,19 +3,21 @@ uuid = "76746363-e552-5dba-9a5a-cef6fa9cc5ab"
 version = "1.0.3"
 
 [deps]
+DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 UnitfulAstro = "6112ee07-acf9-5e0f-b108-d242c714bf9f"
 
 [compat]
+DocStringExtensions = "0.9"
 QuadGK = "0.1.1, 0.2, 0.3, 2"
 Unitful = "1.2"
 UnitfulAstro = "1.1"
 julia = "1"
 
 [extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
 test = ["Test", "Documenter"]
