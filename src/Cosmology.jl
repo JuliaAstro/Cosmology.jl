@@ -292,15 +292,20 @@ Z(c::AbstractCosmology, z₁::Real, z₂::Real; kws...) =
     Z(c::AbstractCosmology, z, nothing; kws...)
     Z(c::AbstractCosmology, z₁, z₂; kws...)
 
-TODO (Internal helper function for comoving distances)
+The line-of-sight comoving distance contributions for comoving radial distance.
 
-If `nothing` is used for the upper bound of integration, it defaults to `z₂ = 0`.
-
-Mathematical definition:
+It performs the integral
 ```math
-Z = \int_{a_1}^{a_2} \frac{1}{a^2 E(a)} da
+Z = \int_{z_1}^{z_2} \frac{dz}{E(z)} = \int_{a_2}^{a_1} \frac{da}{a^2 E(a)}
 ```
-where ``a_1 = 1/(1+z_1)`` and ``a_2 = 1/(1+z_2)``.
+where we can perform a change of variables with ``a = 1/(1+z)``,
+and ``dz = -da/a^2``.
+
+If `nothing` is used for the second bound of integration, it defaults
+to `z₁ = 0` (i.e., `a₁ = 1`).
+
+### See also
+[`comoving_radial_dist`](@ref)
 """
 Z
 
