@@ -121,7 +121,7 @@ end
 Calculates the intermediate quantity ``a^2 E(a)``.
 This is an internal function used to simplify computation.
 
-Mathematical formulation (for ΛCDM models):
+Mathematical definition (for ΛCDM models):
 ```math
 a^2 E(a) = \sqrt{Ω_r + Ω_m a + Ω_k a^2 + Ω_Λ a^4}
 ```
@@ -132,11 +132,13 @@ a2E
 @doc raw"""
     a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
 
-Mathematical formulation (for WCDM models):
+The implementation of ``a^2 E(a)`` for WCDM models.
+
+Mathematical definition (for WCDM models):
 ```math
 a^2 E(a) = \sqrt{Ω_r + Ω_m a + Ω_k a^2 + Ω_Λ a_{de}}
 ```
-where ``a_{de} = \exp[(1 - 3 w_0 - 3 w_a) \log(a) + 3 w_a (a - 1)]``
+where ``a_{de} = \exp[(1 - 3 w_0 - 3 w_a) \log(a) + 3 w_a (a - 1)]``.
 """
 function a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
     # dark energy scale factor
@@ -273,7 +275,7 @@ hubble_time0(c::AbstractCosmology) = 9.777922216807891 / c.h * Gyr
     hubble_time(c::AbstractCosmology, z)
 
 Hubble time, defined as the inverse of the Hubble parameter. That is,
-``t_H(z) = 1/H(z)``
+``t_H(z) = 1/H(z)``.
 
 ### See also
 [`hubble_dist`](@ref)
