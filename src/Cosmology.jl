@@ -4,6 +4,7 @@ using QuadGK: quadgk
 using Unitful
 import Unitful: km, s, Gyr
 using UnitfulAstro: Mpc, Gpc
+using DocStringExtensions
 
 export cosmology,
        age,
@@ -20,11 +21,21 @@ export cosmology,
        lookback_time,
        scale_factor
 
+"""
+$(TYPEDEF)
+
+Abstract supertype for all cosmological models.
+"""
 abstract type AbstractCosmology end
 abstract type AbstractClosedCosmology <: AbstractCosmology end
 abstract type AbstractFlatCosmology <: AbstractCosmology end
 abstract type AbstractOpenCosmology <: AbstractCosmology end
 
+"""
+$(TYPEDEF)
+
+ΛCDM model of the universe with ``Ω_k = 0``.
+"""
 struct FlatLCDM{T <: Real} <: AbstractFlatCosmology
     h::T
     Ω_Λ::T
@@ -34,6 +45,11 @@ end
 FlatLCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
     FlatLCDM(promote(float(h), float(Ω_Λ), float(Ω_m), float(Ω_r))...)
 
+"""
+$(TYPEDEF)
+
+ΛCDM model of the universe with ``Ω_k < 0``.
+"""
 struct ClosedLCDM{T <: Real} <: AbstractClosedCosmology
     h::T
     Ω_k::T
@@ -45,6 +61,11 @@ ClosedLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
     ClosedLCDM(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
                        float(Ω_r))...)
 
+"""
+$(TYPEDEF)
+
+ΛCDM model of the universe with ``Ω_k > 0``.
+"""
 struct OpenLCDM{T <: Real} <: AbstractOpenCosmology
     h::T
     Ω_k::T
