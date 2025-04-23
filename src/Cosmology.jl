@@ -254,8 +254,8 @@ hubble_dist0(c::AbstractCosmology) = 2997.92458 / c.h * Mpc
 """
     hubble_dist(c::AbstractCosmology, z)
 
-Hubble distance, defined as the product of the speed of light and the Hubble parameter.
-That is, ``c / H(z)``
+Hubble distance ``D_H``, defined as the product of the speed of light and
+the Hubble time. That is, ``D_H(z) = c / H(z)``.
 
 ### See also
 [`hubble_time`](@ref)
