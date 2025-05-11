@@ -29,6 +29,7 @@ angular_diameter_dist
 comoving_radial_dist
 luminosity_dist
 distmod
+hubble_dist
 ```
 
 ### Examples
@@ -79,6 +80,7 @@ julia> comoving_volume(u"ly^3", c, 0.6)
 ```@docs
 age
 lookback_time
+hubble_time
 ```
 
 ### Examples
@@ -91,4 +93,16 @@ julia> age(c, 1.2)
 
 julia> lookback_time(u"yr", c, 1.2)
 8.761465604385489e9 yr
+```
+
+## Miscellaneous
+```@docs
+H
+scale_factor
+```
+
+
+## Bibliography
+```@bibliography
+Pages = ["api.md"]
 ```
