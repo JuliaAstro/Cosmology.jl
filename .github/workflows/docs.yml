@@ -2,7 +2,7 @@ name: Documentation
 
 on:
   push:
-    branches: "master"
+    branches: [master]
     tags: ["*"]
   pull_request:
   release:
@@ -18,12 +18,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@latest
+      - uses: julia-actions/setup-julia@v2
         with:
-          version: 1
-      - name: Cache artifacts
-        uses: julia-actions/cache@v2
-      - uses: julia-actions/julia-docdeploy@releases/v1
+          version: '1'
+      - uses: julia-actions/cache@v2
+      - uses: julia-actions/julia-docdeploy@v1
         env:
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
