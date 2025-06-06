@@ -18,7 +18,7 @@ makedocs(;
     sitename = "Cosmology.jl",
     format = Documenter.HTML(;
         prettyurls = get(ENV, "CI", "false") == "true",
-        canonical = "https://juliaastro.org/Cosmology/stable",
+        canonical = "https://juliaastro.org/Cosmology/stable/",
         assets = String[],
     ),
     plugins = [bib],
