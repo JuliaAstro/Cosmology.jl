@@ -18,7 +18,7 @@ makedocs(;
     sitename = "Cosmology.jl",
     format = Documenter.HTML(;
         prettyurls = get(ENV, "CI", "false") == "true",
-        canonical = "https://juliaastro.github.io/Cosmology.jl",
+        canonical = "https://juliaastro.org/Cosmology/stable/",
         assets = String[],
     ),
     plugins = [bib],
@@ -28,4 +28,5 @@ makedocs(;
 deploydocs(;
     repo = "github.com/JuliaAstro/Cosmology.jl",
     push_preview = true,
+    versions = ["stable" => "v^", "v#.#"], # Restrict to minor releases
 )
