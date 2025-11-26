@@ -1,6 +1,5 @@
 using Cosmology
-using Test, Unitful, UnitfulAstro, QuadGK
-using Documenter
+using Test, Unitful, UnitfulAstro, QuadGK, Aqua
 
 @testset "Cosmology" begin
 
@@ -141,4 +140,11 @@ using Documenter
         @test hubble_dist(c, 0) ≈ Cosmology.hubble_dist0(c)
         @test H(c, 0) ≈ 70u"km/s/Mpc"
     end
+end
+
+@testset "Aqua tests" begin
+    using Cosmology
+    using Aqua
+
+    Aqua.test_all(Cosmology)
 end
