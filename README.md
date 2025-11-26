@@ -1,10 +1,11 @@
 # Cosmology.jl
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliaastro.github.io/Cosmology.jl/stable)
-[![Latest](https://img.shields.io/badge/docs-latest-blue.svg)](https://juliaastro.github.io/Cosmology.jl/dev)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliaastro.org/Cosmology/stable/)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliaastro.org/Cosmology.jl/dev/)
 
-[![CI](https://github.com/JuliaAstro/Cosmology.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/JuliaAstro/Cosmology.jl/actions/workflows/ci.yml)
-[![Coverage Status](http://img.shields.io/coveralls/JuliaAstro/Cosmology.jl.svg?style=flat-square)](https://coveralls.io/r/JuliaAstro/Cosmology.jl?branch=master)
+[![CI](https://github.com/JuliaAstro/Cosmology.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaAstro/Cosmology.jl/actions/workflows/CI.yml)
+[![codecov](https://codecov.io/gh/JuliaAstro/Cosmology.jl/graph/badge.svg)](https://codecov.io/gh/JuliaAstro/Cosmology.jl)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A cosmology calculator for Julia.
 

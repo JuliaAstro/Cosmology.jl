@@ -72,7 +72,7 @@ julia> comoving_volume(c, 0.6)
 49.3633436631307 Gpc^3
 
 julia> comoving_volume(u"ly^3", c, 0.6)
-1.7127035381753e30 ly^3
+1.7127035381752996e30 ly^3
 ```
 
 ## Times
