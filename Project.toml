@@ -8,8 +8,13 @@ projects = ["test", "docs"]
 [deps]
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
+
+[weakdeps]
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 UnitfulAstro = "6112ee07-acf9-5e0f-b108-d242c714bf9f"
+
+[extensions]
+UnitfulUnitfulAstroExt = ["Unitful", "UnitfulAstro"]
 
 [compat]
 DocStringExtensions = "0.9"
