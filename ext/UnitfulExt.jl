@@ -1,4 +1,4 @@
-module UnitfulUnitfulAstroExt
+module UnitfulExt
 
 using Cosmology
 using Unitful, UnitfulAstro
