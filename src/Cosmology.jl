@@ -1,5 +1,6 @@
 module Cosmology
 
+using DynamicQuantities: @us_str
 using QuadGK: quadgk
 using DocStringExtensions
 
@@ -237,7 +238,7 @@ E(c::AbstractCosmology, z) = (a = scale_factor(z); a2E(c, a) / a^2)
 
 Hubble parameter at redshift `z`.
 """
-H(c::AbstractCosmology, z) = 100 * c.h * E(c, z) # km / s / Mpc
+H(c::AbstractCosmology, z) = 100 * c.h * E(c, z) * us"km / s / Constants.Mpc"
 
 """
     hubble_dist0(c::AbstractCosmology)
@@ -247,7 +248,7 @@ Hubble distance at redshift 0.
 ### See also
 [`hubble_dist`](@ref)
 """
-hubble_dist0(c::AbstractCosmology) = 2997.92458 / c.h # Mpc
+hubble_dist0(c::AbstractCosmology) = (2997.92458 / c.h)us"Constants.Mpc"
 """
     hubble_dist(c::AbstractCosmology, z)
 
@@ -267,7 +268,7 @@ Hubble time at redshift 0.
 ### See also
 [`hubble_time`](@ref)
 """
-hubble_time0(c::AbstractCosmology) = 9.777922216807891 / c.h # Gyr
+hubble_time0(c::AbstractCosmology) = (9.777922216807891 / c.h)us"Gyr"
 """
     hubble_time(c::AbstractCosmology, z)
 
