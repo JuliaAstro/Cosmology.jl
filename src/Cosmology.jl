@@ -1,6 +1,6 @@
 module Cosmology
 
-using DynamicQuantities: @us_str
+using DynamicQuantities: @u_str, @us_str, UnionAbstractQuantity, ustrip, uconvert
 using QuadGK: quadgk
 using DocStringExtensions
 
@@ -364,7 +364,7 @@ luminosity_dist
 Distance modulus in magnitudes at redshift `z`.
 """
 distmod(c::AbstractCosmology, z; kws...) =
-    5 * log10(luminosity_dist(c, z; kws...)) + 25
+    5 * log10(ustrip(u"Constants.Mpc", luminosity_dist(c, z; kws...))) + 25
 
 # volumes
 
@@ -414,5 +414,21 @@ Difference between age at redshift 0 and age at redshift `z` in Gyr.
 Will convert to compatible unit `u` if provided.
 """
 lookback_time(c::AbstractCosmology, z; kws...) = hubble_time0(c) * T(c, scale_factor(z), 1; kws...)
+
+# Easily select a different unit
+for f in (
+    :age,
+    :angular_diameter_dist,
+    :comoving_radial_dist,
+    :comoving_transverse_dist,
+    :comoving_volume,
+    :comoving_volume_element,
+    :hubble_dist,
+    :hubble_time,
+    :luminosity_dist,
+    :lookback_time,
+    )
+    @eval $f(u::UnionAbstractQuantity, args...; kws...) = uconvert(u, $f(args...; kws...))
+end
 
 end # module
