@@ -58,8 +58,8 @@ struct FlatWCDM{T <: Real} <: AbstractFlatCosmology
     w0::T
     wa::T
 end
-FlatWCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
-    FlatWCDM(promote(float(h), float(Ω_Λ), float(Ω_m), float(Ω_r))...)
+FlatWCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real, w0::Real, wa::Real) =
+    FlatWCDM(promote(float(h), float(Ω_Λ), float(Ω_m), float(Ω_r), float(w0), float(wa))...)
 
 # define open and closed ΛCDM and wCDM models, the latter of which includes a
 # cosmological equation of state parameter w.
