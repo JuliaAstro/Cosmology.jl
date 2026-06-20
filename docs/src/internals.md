@@ -21,7 +21,6 @@ OpenWCDM
 E
 Z
 a2E
-a2E(::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
 hubble_dist0
 hubble_time0
 ```
