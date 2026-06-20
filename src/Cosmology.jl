@@ -79,9 +79,14 @@ OpenLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
 
 
 # define WCDM models, which includes a cosmological equation of state parameter w.
-for c in ("Flat", "Open", "Closed")
+for (c, k_constraint) in (("Flat", "= 0"), ("Open", "> 0"), ("Closed", "< 0"))
     name = Symbol("$(c)WCDM")
     @eval begin
+        """
+        $(TYPEDEF)
+
+        WCDM model of the universe with ``Ω_k $($k_constraint)``.
+        """
         struct $(name){T <: Real} <: $(Symbol("Abstract$(c)Cosmology"))
             h::T
             Ω_k::T

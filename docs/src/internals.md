@@ -11,6 +11,9 @@ AbstractCosmology
 FlatLCDM
 ClosedLCDM
 OpenLCDM
+FlatWCDM
+ClosedWCDM
+OpenWCDM
 ```
 
 ## Methods
