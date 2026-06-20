@@ -1,6 +1,6 @@
 name = "Cosmology"
 uuid = "76746363-e552-5dba-9a5a-cef6fa9cc5ab"
-version = "1.0.4"
+version = "1.1.0"
 
 [workspace]
 projects = ["test", "docs"]
