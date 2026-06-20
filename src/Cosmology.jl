@@ -321,7 +321,19 @@ the present epoch and, ``Z = \int_{z_1}^{z_2} \frac{dz}{E(z)}``.
 function comoving_radial_dist end
 comoving_radial_dist(c::AbstractCosmology, z₁, z₂ = nothing; kws...) = hubble_dist0(c) * Z(c, z₁, z₂; kws...)
 
+@doc raw"""
+    comoving_transverse_dist([u::Unitlike,] c::AbstractCosmology, [z₁,] z₂)
 
+Comoving transverse distance (``D_C``) in Mpc at redshift `z₂` as seen by an observer at `z₁`.
+Redshift `z₁` defaults to 0 if omitted.  Will convert to compatible unit `u` if
+provided.
+
+It's identical to the comoving radial distance for a flat cosmological model.
+
+### See also
+[`comoving_radial_dist`](@ref)
+"""
+function comoving_transverse_dist end
 comoving_transverse_dist(c::AbstractFlatCosmology, z₁, z₂ = nothing; kws...) =
     comoving_radial_dist(c, z₁, z₂; kws...)
 function comoving_transverse_dist(c::AbstractOpenCosmology, z₁, z₂ = nothing; kws...)
