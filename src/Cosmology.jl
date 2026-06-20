@@ -97,21 +97,27 @@ for (c, k_constraint) in (("Open", "> 0"), ("Closed", "< 0"))
             w0::T
             wa::T
         end
-        function $(WCDMname)(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real,
-                         w0::Real, wa::Real)
-            $(WCDMname)(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
-                                float(Ω_r), float(w0), float(wa))...)
+        function $(WCDMname)(
+                h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real,
+                w0::Real, wa::Real
+            )
+            return $(WCDMname)(
+                promote(
+                    float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
+                    float(Ω_r), float(w0), float(wa)
+                )...
+            )
         end
     end
 end
 
 function WCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real, w0::Real, wa::Real)
     if Ω_k < 0
-        ClosedWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
+        return ClosedWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
     elseif Ω_k > 0
-        OpenWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
+        return OpenWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
     else
-        FlatWCDM(h, Ω_Λ, Ω_m, Ω_r, w0, wa)
+        return FlatWCDM(h, Ω_Λ, Ω_m, Ω_r, w0, wa)
     end
 end
 
@@ -132,16 +138,16 @@ and ``b = a_{de} = a^{1 - 3(w_0 + w_a)} \exp(3 w_a (a - 1))`` for wCDM models.
 function a2E end
 a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
 a2E(c::FlatWCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * ade(c, a))
-function a2E(c::Union{ClosedLCDM,OpenLCDM}, a)
+function a2E(c::Union{ClosedLCDM, OpenLCDM}, a)
     a2 = a * a
-    sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
+    return sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
 end
-function a2E(c::Union{ClosedWCDM,OpenWCDM}, a)
-    sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade(c, a))
+function a2E(c::Union{ClosedWCDM, OpenWCDM}, a)
+    return sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade(c, a))
 end
 
 # dark energy scale factor
-function ade(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
+function ade(c::Union{FlatWCDM, ClosedWCDM, OpenWCDM}, a)
     return a^(1 - 3 * (c.w0 + c.wa)) * exp(3 * c.wa * (a - 1))
 end
 
@@ -179,14 +185,16 @@ julia> c = cosmology(w0=-0.9, OmegaK=-0.1)
 Cosmology.ClosedWCDM{Float64}(0.69, -0.1, 0.8099122024007929, 0.29, 8.77975992071536e-5, -0.9, 0.0)
 ```
 """
-function cosmology(;h = 0.69,
-                   Neff = 3.04,
-                   OmegaK = 0,
-                   OmegaM = 0.29,
-                   OmegaR = nothing,
-                   Tcmb = 2.7255,
-                   w0 = -1,
-                   wa = 0)
+function cosmology(;
+        h = 0.69,
+        Neff = 3.04,
+        OmegaK = 0,
+        OmegaM = 0.29,
+        OmegaR = nothing,
+        Tcmb = 2.7255,
+        w0 = -1,
+        wa = 0
+    )
 
     if OmegaR === nothing
         OmegaG = 4.48131e-7 * Tcmb^4 / h^2
@@ -304,9 +312,9 @@ to `z₁ = 0` (i.e., `a₁ = 1`).
 """
 function Z end
 Z(c::AbstractCosmology, z::Real, ::Nothing; kws...) =
-    quadgk(a->1 / a2E(c, a), scale_factor(z), 1; kws...)[1]
+    quadgk(a -> 1 / a2E(c, a), scale_factor(z), 1; kws...)[1]
 Z(c::AbstractCosmology, z₁::Real, z₂::Real; kws...) =
-    quadgk(a->1 / a2E(c, a), scale_factor(z₂), scale_factor(z₁); kws...)[1]
+    quadgk(a -> 1 / a2E(c, a), scale_factor(z₂), scale_factor(z₁); kws...)[1]
 
 @doc raw"""
     comoving_radial_dist([u::Unitlike,] c::AbstractCosmology, [z₁,] z₂)
@@ -338,11 +346,11 @@ comoving_transverse_dist(c::AbstractFlatCosmology, z₁, z₂ = nothing; kws...)
     comoving_radial_dist(c, z₁, z₂; kws...)
 function comoving_transverse_dist(c::AbstractOpenCosmology, z₁, z₂ = nothing; kws...)
     sqrtok = sqrt(c.Ω_k)
-    hubble_dist0(c) * sinh(sqrtok * Z(c, z₁, z₂; kws...)) / sqrtok
+    return hubble_dist0(c) * sinh(sqrtok * Z(c, z₁, z₂; kws...)) / sqrtok
 end
 function comoving_transverse_dist(c::AbstractClosedCosmology, z₁, z₂ = nothing; kws...)
     sqrtok = sqrt(abs(c.Ω_k))
-    hubble_dist0(c) * sin(sqrtok * Z(c, z₁, z₂; kws...)) / sqrtok
+    return hubble_dist0(c) * sin(sqrtok * Z(c, z₁, z₂; kws...)) / sqrtok
 end
 
 """
@@ -391,13 +399,13 @@ function comoving_volume(c::AbstractOpenCosmology, z; kws...)
     DH = hubble_dist0(Gpc, c)
     x = comoving_transverse_dist(Gpc, c, z; kws...) / DH
     sqrtok = sqrt(c.Ω_k)
-    2pi * (DH)^3 * (x * sqrt(1 + c.Ω_k * x^2) - asinh(sqrtok * x) / sqrtok) / c.Ω_k
+    return 2pi * (DH)^3 * (x * sqrt(1 + c.Ω_k * x^2) - asinh(sqrtok * x) / sqrtok) / c.Ω_k
 end
 function comoving_volume(c::AbstractClosedCosmology, z; kws...)
     DH = hubble_dist0(Gpc, c)
     x = comoving_transverse_dist(Gpc, c, z; kws...) / DH
     sqrtok = sqrt(abs(c.Ω_k))
-    2pi * (DH)^3 * (x * sqrt(1 + c.Ω_k * x^2) - asin(sqrtok * x) / sqrtok) / c.Ω_k
+    return 2pi * (DH)^3 * (x * sqrt(1 + c.Ω_k * x^2) - asin(sqrtok * x) / sqrtok) / c.Ω_k
 end
 
 """
@@ -411,7 +419,7 @@ comoving_volume_element(c::AbstractCosmology, z; kws...) =
 
 # times
 
-T(c::AbstractCosmology, a0, a1; kws...) = quadgk(x->x / a2E(c, x), a0, a1; kws...)[1]
+T(c::AbstractCosmology, a0, a1; kws...) = quadgk(x -> x / a2E(c, x), a0, a1; kws...)[1]
 
 """
     age([u::Unitlike,] c::AbstractCosmology, z)
@@ -431,11 +439,13 @@ function lookback_time end
 lookback_time(c::AbstractCosmology, z; kws...) = hubble_time0(c) * T(c, scale_factor(z), 1; kws...)
 
 # Easily select a different unit
-for f in (:hubble_dist0, :hubble_dist, :hubble_time0, :hubble_time,
-          :comoving_radial_dist, :comoving_transverse_dist,
-          :angular_diameter_dist, :luminosity_dist,
-          :comoving_volume, :comoving_volume_element,
-          :age, :lookback_time)
+for f in (
+        :hubble_dist0, :hubble_dist, :hubble_time0, :hubble_time,
+        :comoving_radial_dist, :comoving_transverse_dist,
+        :angular_diameter_dist, :luminosity_dist,
+        :comoving_volume, :comoving_volume_element,
+        :age, :lookback_time,
+    )
     @eval $f(u::Unitful.Unitlike, args...; kws...) = uconvert(u, $f(args...; kws...))
 end
 
