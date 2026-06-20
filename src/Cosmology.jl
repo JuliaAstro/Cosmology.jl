@@ -131,12 +131,10 @@ and ``b = a_{de} = a^{1 - 3(w_0 + w_a)} \exp(3 w_a (a - 1))`` for wCDM models.
 """
 function a2E end
 a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
+a2E(c::FlatWCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * ade(c, a))
 function a2E(c::Union{ClosedLCDM,OpenLCDM}, a)
     a2 = a * a
     sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
-end
-function a2E(c::FlatWCDM, a)
-    sqrt(c.Ω_r + c.Ω_m * a * a + c.Ω_Λ * ade(c, a))
 end
 function a2E(c::Union{ClosedWCDM,OpenWCDM}, a)
     sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade(c, a))
