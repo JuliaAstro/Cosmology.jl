@@ -85,7 +85,7 @@ for (c, k_constraint) in (("Flat", "= 0"), ("Open", "> 0"), ("Closed", "< 0"))
         """
         $(TYPEDEF)
 
-        WCDM model of the universe with ``Ω_k $(k_constraint)``.
+        WCDM model of the universe with ``Ω_k $($k_constraint)``.
         """
         struct $(name){T <: Real} <: $(Symbol("Abstract$(c)Cosmology"))
             h::T
