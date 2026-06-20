@@ -48,46 +48,47 @@ FlatLCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
 """
 $(TYPEDEF)
 
-ΛCDM model of the universe with ``Ω_k < 0``.
+wCDM model of the universe with ``Ω_k = 0``.
 """
-struct ClosedLCDM{T <: Real} <: AbstractClosedCosmology
+struct FlatWCDM{T <: Real} <: AbstractFlatCosmology
     h::T
-    Ω_k::T
     Ω_Λ::T
     Ω_m::T
     Ω_r::T
+    w0::T
+    wa::T
 end
-ClosedLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
-    ClosedLCDM(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
-                       float(Ω_r))...)
+FlatWCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
+    FlatWCDM(promote(float(h), float(Ω_Λ), float(Ω_m), float(Ω_r))...)
 
-"""
-$(TYPEDEF)
-
-ΛCDM model of the universe with ``Ω_k > 0``.
-"""
-struct OpenLCDM{T <: Real} <: AbstractOpenCosmology
-    h::T
-    Ω_k::T
-    Ω_Λ::T
-    Ω_m::T
-    Ω_r::T
-end
-OpenLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
-    OpenLCDM(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
-                     float(Ω_r))...)
-
-
-# define WCDM models, which includes a cosmological equation of state parameter w.
-for (c, k_constraint) in (("Flat", "= 0"), ("Open", "> 0"), ("Closed", "< 0"))
-    name = Symbol("$(c)WCDM")
+# define open and closed ΛCDM and wCDM models, the latter of which includes a
+# cosmological equation of state parameter w.
+for (c, k_constraint) in (("Open", "> 0"), ("Closed", "< 0"))
+    LCDMname = Symbol("$(c)LCDM")
+    WCDMname = Symbol("$(c)WCDM")
+    ParentType = Symbol("Abstract$(c)Cosmology")
     @eval begin
         """
         $(TYPEDEF)
 
-        WCDM model of the universe with ``Ω_k $($k_constraint)``.
+        ΛCDM model of the universe with ``Ω_k $($k_constraint)``.
         """
-        struct $(name){T <: Real} <: $(Symbol("Abstract$(c)Cosmology"))
+        struct $(LCDMname){T <: Real} <: $(ParentType)
+            h::T
+            Ω_k::T
+            Ω_Λ::T
+            Ω_m::T
+            Ω_r::T
+        end
+        $(LCDMname)(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
+            $(LCDMname)(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m), float(Ω_r))...)
+
+        """
+        $(TYPEDEF)
+
+        wCDM model of the universe with ``Ω_k $($k_constraint)``.
+        """
+        struct $(WCDMname){T <: Real} <: $(ParentType)
             h::T
             Ω_k::T
             Ω_Λ::T
@@ -96,10 +97,10 @@ for (c, k_constraint) in (("Flat", "= 0"), ("Open", "> 0"), ("Closed", "< 0"))
             w0::T
             wa::T
         end
-        function $(name)(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real,
+        function $(WCDMname)(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real,
                          w0::Real, wa::Real)
-            $(name)(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
-                            float(Ω_r), float(w0), float(wa))...)
+            $(WCDMname)(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
+                                float(Ω_r), float(w0), float(wa))...)
         end
     end
 end
@@ -110,45 +111,40 @@ function WCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real, w0::Real
     elseif Ω_k > 0
         OpenWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
     else
-        FlatWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
+        FlatWCDM(h, Ω_Λ, Ω_m, Ω_r, w0, wa)
     end
 end
 
+@doc raw"""
+    a2E(c::AbstractCosmology, a)
+
+Calculates the intermediate quantity ``a^2 E(a)``.
+This is an internal function used to simplify computation.
+
+Mathematical definition:
+```math
+a^2 E(a) = \sqrt{Ω_r + Ω_m a + Ω_k a^2 + Ω_Λ b}
+```
+where ``Ω_k = 0`` for a flat cosmological model,
+and ``b = a^4`` for ΛCDM models
+and ``b = a_{de} = a^{1 - 3(w_0 + w_a)} \exp(3 w_a (a - 1))`` for wCDM models.
+"""
+function a2E end
 a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
 function a2E(c::Union{ClosedLCDM,OpenLCDM}, a)
     a2 = a * a
     sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
 end
-@doc raw"""
-    a2E(c::Union{FlatLCDM,ClosedLCDM,OpenLCDM}, a)
+function a2E(c::FlatWCDM, a)
+    sqrt(c.Ω_r + c.Ω_m * a * a + c.Ω_Λ * ade(c, a))
+end
+function a2E(c::Union{ClosedWCDM,OpenWCDM}, a)
+    sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade(c, a))
+end
 
-
-Calculates the intermediate quantity ``a^2 E(a)``.
-This is an internal function used to simplify computation.
-
-Mathematical definition (for ΛCDM models):
-```math
-a^2 E(a) = \sqrt{Ω_r + Ω_m a + Ω_k a^2 + Ω_Λ a^4}
-```
-where ``Ω_k = 0`` for a flat cosmological model.
-"""
-a2E
-
-@doc raw"""
-    a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
-
-The implementation of ``a^2 E(a)`` for WCDM models.
-
-Mathematical definition (for WCDM models):
-```math
-a^2 E(a) = \sqrt{Ω_r + Ω_m a + Ω_k a^2 + Ω_Λ a_{de}}
-```
-where ``a_{de} = \exp[(1 - 3 w_0 - 3 w_a) \log(a) + 3 w_a (a - 1)]``.
-"""
-function a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
-    # dark energy scale factor
-    ade = exp((1 - 3 * (c.w0 + c.wa)) * log(a) + 3 * c.wa * (a - 1))
-    sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade)
+# dark energy scale factor
+function ade(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
+    return a^(1 - 3 * (c.w0 + c.wa)) * exp(3 * c.wa * (a - 1))
 end
 
 
