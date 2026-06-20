@@ -13,7 +13,7 @@ UnitfulAstro = "6112ee07-acf9-5e0f-b108-d242c714bf9f"
 
 [compat]
 DocStringExtensions = "0.9"
-QuadGK = "0.1.1, 0.2, 0.3, 2"
+QuadGK = "2"
 Unitful = "1.2"
 UnitfulAstro = "1.1"
 julia = "1.10"
