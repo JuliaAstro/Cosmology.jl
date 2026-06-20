@@ -283,10 +283,6 @@ hubble_time(c::AbstractCosmology, z) = hubble_time0(c) / E(c, z)
 
 # distances
 
-Z(c::AbstractCosmology, z::Real, ::Nothing; kws...) =
-    quadgk(a->1 / a2E(c, a), scale_factor(z), 1; kws...)[1]
-Z(c::AbstractCosmology, z₁::Real, z₂::Real; kws...) =
-    quadgk(a->1 / a2E(c, a), scale_factor(z₂), scale_factor(z₁); kws...)[1]
 @doc raw"""
     Z(c::AbstractCosmology, z, nothing; kws...)
     Z(c::AbstractCosmology, z₁, z₂; kws...)
@@ -306,9 +302,11 @@ to `z₁ = 0` (i.e., `a₁ = 1`).
 ### See also
 [`comoving_radial_dist`](@ref)
 """
-Z
-
-comoving_radial_dist(c::AbstractCosmology, z₁, z₂ = nothing; kws...) = hubble_dist0(c) * Z(c, z₁, z₂; kws...)
+function Z end
+Z(c::AbstractCosmology, z::Real, ::Nothing; kws...) =
+    quadgk(a->1 / a2E(c, a), scale_factor(z), 1; kws...)[1]
+Z(c::AbstractCosmology, z₁::Real, z₂::Real; kws...) =
+    quadgk(a->1 / a2E(c, a), scale_factor(z₂), scale_factor(z₁); kws...)[1]
 
 @doc raw"""
     comoving_radial_dist([u::Unitlike,] c::AbstractCosmology, [z₁,] z₂)
@@ -320,7 +318,8 @@ provided.
 It's calculated as ``D_C = D_{H0} Z``, where ``D_{H0}`` is the Hubble distance at
 the present epoch and, ``Z = \int_{z_1}^{z_2} \frac{dz}{E(z)}``.
 """
-comoving_radial_dist
+function comoving_radial_dist end
+comoving_radial_dist(c::AbstractCosmology, z₁, z₂ = nothing; kws...) = hubble_dist0(c) * Z(c, z₁, z₂; kws...)
 
 
 comoving_transverse_dist(c::AbstractFlatCosmology, z₁, z₂ = nothing; kws...) =
@@ -334,11 +333,6 @@ function comoving_transverse_dist(c::AbstractClosedCosmology, z₁, z₂ = nothi
     hubble_dist0(c) * sin(sqrtok * Z(c, z₁, z₂; kws...)) / sqrtok
 end
 
-angular_diameter_dist(c::AbstractCosmology, z; kws...) =
-    comoving_transverse_dist(c, z; kws...) / (1 + z)
-angular_diameter_dist(c::AbstractCosmology, z₁, z₂; kws...) =
-    comoving_transverse_dist(c, z₁, z₂; kws...) / (1 + z₂)
-
 """
     angular_diameter_dist([u::Unitlike,] c::AbstractCosmology, [z₁,] z₂)
 
@@ -346,10 +340,11 @@ Ratio of the proper transverse size in Mpc of an object at redshift `z₂` to it
 angular size in radians, as seen by an observer at `z₁`.  Redshift `z₁` defaults
 to 0 if omitted.  Will convert to compatible unit `u` if provided.
 """
-angular_diameter_dist
-
-luminosity_dist(c::AbstractCosmology, z; kws...) =
-    comoving_transverse_dist(c, z; kws...) * (1 + z)
+function angular_diameter_dist end
+angular_diameter_dist(c::AbstractCosmology, z; kws...) =
+    comoving_transverse_dist(c, z; kws...) / (1 + z)
+angular_diameter_dist(c::AbstractCosmology, z₁, z₂; kws...) =
+    comoving_transverse_dist(c, z₁, z₂; kws...) / (1 + z₂)
 
 """
     luminosity_dist([u::Unitlike,] c::AbstractCosmology, z)
@@ -357,13 +352,16 @@ luminosity_dist(c::AbstractCosmology, z; kws...) =
 Bolometric luminosity distance in Mpc at redshift `z`. Will convert to
 compatible unit `u` if provided.
 """
-luminosity_dist
+function luminosity_dist end
+luminosity_dist(c::AbstractCosmology, z; kws...) =
+    comoving_transverse_dist(c, z; kws...) * (1 + z)
 
 """
     distmod(c::AbstractCosmology, z)
 
 Distance modulus in magnitudes at redshift `z`.
 """
+function distmod end
 distmod(c::AbstractCosmology, z; kws...) =
     5 * log10(luminosity_dist(c, z; kws...) / Mpc) + 25
 
@@ -374,6 +372,7 @@ distmod(c::AbstractCosmology, z; kws...) =
 
 Comoving volume in cubic Gpc out to redshift `z`. Will convert to compatible unit `u` if provided.
 """
+function comoving_volume end
 comoving_volume(c::AbstractFlatCosmology, z; kws...) =
     (4pi / 3) * (comoving_radial_dist(Gpc, c, z; kws...))^3
 function comoving_volume(c::AbstractOpenCosmology, z; kws...)
@@ -394,6 +393,7 @@ end
 
 Comoving volume element in Gpc out to redshift `z`. Will convert to compatible unit `u` if provided.
 """
+function comoving_volume_element end
 comoving_volume_element(c::AbstractCosmology, z; kws...) =
     hubble_dist0(Gpc, c) * angular_diameter_dist(Gpc, c, z; kws...)^2 / a2E(c, scale_factor(z))
 
@@ -406,6 +406,7 @@ T(c::AbstractCosmology, a0, a1; kws...) = quadgk(x->x / a2E(c, x), a0, a1; kws..
 
 Age of the universe in Gyr at redshift `z`. Will convert to compatible unit `u` if provided.
 """
+function age end
 age(c::AbstractCosmology, z; kws...) = hubble_time0(c) * T(c, 0, scale_factor(z); kws...)
 
 """
@@ -414,6 +415,7 @@ age(c::AbstractCosmology, z; kws...) = hubble_time0(c) * T(c, 0, scale_factor(z)
 Difference between age at redshift 0 and age at redshift `z` in Gyr.
 Will convert to compatible unit `u` if provided.
 """
+function lookback_time end
 lookback_time(c::AbstractCosmology, z; kws...) = hubble_time0(c) * T(c, scale_factor(z), 1; kws...)
 
 # Easily select a different unit
