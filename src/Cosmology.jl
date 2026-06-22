@@ -111,6 +111,16 @@ for (c, k_constraint) in (("Open", "> 0"), ("Closed", "< 0"))
     end
 end
 
+function LCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real)
+    if Ω_k < 0
+        return ClosedLCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r)
+    elseif Ω_k > 0
+        return OpenLCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r)
+    else
+        return FlatLCDM(h, Ω_Λ, Ω_m, Ω_r)
+    end
+end
+
 function WCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real, w0::Real, wa::Real)
     if Ω_k < 0
         return ClosedWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
@@ -206,14 +216,8 @@ function cosmology(;
 
     if !(w0 == -1 && wa == 0)
         return WCDM(h, OmegaK, OmegaL, OmegaM, OmegaR, w0, wa)
-    end
-
-    if OmegaK < 0
-        return ClosedLCDM(h, OmegaK, OmegaL, OmegaM, OmegaR)
-    elseif OmegaK > 0
-        return OpenLCDM(h, OmegaK, OmegaL, OmegaM, OmegaR)
     else
-        return FlatLCDM(h, OmegaL, OmegaM, OmegaR)
+        return LCDM(h, OmegaK, OmegaL, OmegaM, OmegaR)
     end
 end
 
