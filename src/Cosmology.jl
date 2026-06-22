@@ -25,8 +25,6 @@ export cosmology,
        growth_factor,
        σ_T, m_H, m_He, m_p
 
-
-
 """
 $(TYPEDEF)
 
@@ -57,21 +55,17 @@ for model in ("LCDM", "WCDM")
                 Ω_ν::N = Neff * Ω_γ * (7 / 8) * (4 / 11)^(4 / 3)
                 Ω_r::N = Ω_γ + Ω_ν
                 Ω_m::N = Ω_c + Ω_b
-                Ω_Λ::N = 1. - Ω_m - Ω_r - Ω_k
+                Ω_Λ::N = 1.0 - Ω_m - Ω_r - Ω_k
             end
-            function $(name)(args...)
-                $(name)(promote(map(float, args)...)...)
-            end
-            function $(name)(;kwargs...)
-                $(name)(;promote(map(float, kwargs)...)...)
-            end
+            $(name)(args...) = $(name)(promote(map(float, args)...)...)
+            $(name)(;kwargs...) = $(name)(;promote(map(float, kwargs)...)...)
 
         end
     end
     @eval begin
         function $(Symbol("$model"))(;kwargs...)
             kwargs = Dict(kwargs)
-            Ω_k = haskey(kwargs, :Ω_k) ? kwargs[:Ω_k] : 0.
+            Ω_k = haskey(kwargs, :Ω_k) ? kwargs[:Ω_k] : 0.0
             if Ω_k < 0
                 $(Symbol("Closed$(model)"))(;kwargs...)
             elseif Ω_k > 0
@@ -80,8 +74,6 @@ for model in ("LCDM", "WCDM")
                 $(Symbol("Flat$(model)"))(;kwargs...)
             end
         end
-    end
-    @eval begin
         function $(Symbol("$model"))(args...)
             Ω_k = args[2]
             if Ω_k < 0
@@ -93,15 +85,12 @@ for model in ("LCDM", "WCDM")
             end
         end
     end
-
 end
 
 function a2E(c::Union{FlatLCDM,ClosedLCDM,OpenLCDM}, a)
     a2 = a * a
     sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
 end
-f_DE(c::Union{FlatLCDM,ClosedLCDM,OpenLCDM}, a) = 0
-
 a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
 function a2E(c::Union{ClosedLCDM,OpenLCDM}, a)
     a2 = a * a
@@ -138,6 +127,8 @@ function a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
     ade = exp((1 - 3 * (c.w0 + c.wa)) * log(a) + 3 * c.wa * (a - 1))
     sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade)
 end
+
+f_DE(c::Union{FlatLCDM,ClosedLCDM,OpenLCDM}, a) = 0
 f_DE(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a) = (-3 * (1 + c.w0) + 3 * c.wa * ((a - 1) / log(a - 1e-5) - 1))
 
 
@@ -177,29 +168,29 @@ Cosmology.ClosedWCDM{Float64}(0.69, -0.1, 0.8099122024007929, 0.29, 8.7797599207
 function cosmology(;h = 0.69,
                    Neff = 3.04,
                    OmegaK = 0,
+                   OmegaM = nothing,
+                   OmegaR = nothing,
                    OmegaC = 0.25,
                    OmegaB = 0.05,
-                   OmegaR = nothing,
-                   OmegaM = nothing,
                    Tcmb = 2.7255,
                    w0 = -1,
                    wa = 0)
 
     if !(OmegaR === nothing)
-        Tcmb = 0.
-        Neff = 0.
+        Tcmb = 0.0
+        Neff = 0.0
     end
 
     if !(OmegaM === nothing)
         OmegaC = OmegaM
-        OmegaB = 0.
+        OmegaB = 0.0
     end
 
 
     if !(w0 == -1 && wa == 0)
-        return WCDM(;h = h, Ω_k = OmegaK, Ω_c = OmegaC, Ω_b = OmegaB, Neff = Neff, T_cmb = Tcmb, w0 = w0, wa = wa)
+        return WCDM(; h, Ω_k = OmegaK, Ω_c = OmegaC, Ω_b = OmegaB, Neff, T_cmb = Tcmb, w0, wa)
     else
-        return LCDM(;h = h, Ω_k = OmegaK, Ω_c = OmegaC, Ω_b = OmegaB, Neff = Neff, T_cmb = Tcmb, w0 = w0, wa = wa)
+        return LCDM(; h, Ω_k = OmegaK, Ω_c = OmegaC, Ω_b = OmegaB, Neff, T_cmb = Tcmb, w0, wa)
     end
 
 end
@@ -426,14 +417,9 @@ OmegaM(c::AbstractCosmology, z) = c.Ω_m * (1 + z)^3 / E(c, z)^2
 OmegaDE(c::AbstractCosmology, z) = c.Ω_Λ * scale_factor(z)^f_DE(c, scale_factor(z)) / E(c, z)^2
 
 
-
-
-
-
 # Growth of structure
 
 function growth_derivatives!(du, u, c, a)
-
     # Ex 1.118 in Leclerq's thesis shows the equation
     # satisfied by the second order growth factor
 
@@ -450,7 +436,6 @@ function growth_derivatives!(du, u, c, a)
     du[3] = D_2′
     du[4] = D_2′′
     return du
-
 end
 
 function growth_factor(c::AbstractCosmology, a::Vector{<:Real})
@@ -459,9 +444,9 @@ function growth_factor(c::AbstractCosmology, a::Vector{<:Real})
     Returns: D1(a), D1′(a), D1''(a), D2(a), D2′(a), D2''(a)
     """
     a0 = 1e-2
-    aspan = (a0,1.)
+    aspan = (a0, 1.0)
     a_save = a
-    push!(a_save, 1.)
+    push!(a_save, 1.0)
     D1_in = a0 # EdS conditions
     D1′_in = 1.
     D2_in = -3. * D1_in^2 / 7 # Approx eq. 1.119 at tau = 0, Eds implies Om = 1
@@ -483,8 +468,4 @@ function growth_factor(c::AbstractCosmology, a::Vector{<:Real})
     end
     return D1, D1′, D1′′, D2, D2′, D2′′
 end
-
-
-
 end # module
-
