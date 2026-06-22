@@ -5,7 +5,6 @@ using Unitful
 import Unitful: km, s, Gyr
 using UnitfulAstro: Mpc, Gpc
 using DifferentialEquations
-
 using DocStringExtensions
 
 export cosmology,
@@ -58,9 +57,7 @@ for model in ("LCDM", "WCDM")
                 Ω_ν::N = Neff * Ω_γ * (7 / 8) * (4 / 11)^(4 / 3)
                 Ω_r::N = Ω_γ + Ω_ν
                 Ω_m::N = Ω_c + Ω_b
-                Ω_Λ::N = 1. - Ω_m - Ω_r - Ω_k  
-                
-
+                Ω_Λ::N = 1. - Ω_m - Ω_r - Ω_k
             end
             function $(name)(args...)
                 $(name)(promote(map(float, args)...)...)
@@ -68,7 +65,7 @@ for model in ("LCDM", "WCDM")
             function $(name)(;kwargs...)
                 $(name)(;promote(map(float, kwargs)...)...)
             end
-            
+
         end
     end
     @eval begin
@@ -187,7 +184,7 @@ function cosmology(;h = 0.69,
                    Tcmb = 2.7255,
                    w0 = -1,
                    wa = 0)
-    
+
     if !(OmegaR === nothing)
         Tcmb = 0.
         Neff = 0.
@@ -439,7 +436,7 @@ function growth_derivatives!(du, u, c, a)
 
     # Ex 1.118 in Leclerq's thesis shows the equation
     # satisfied by the second order growth factor
-    
+
     D_1, D_1′, D_2, D_2′ = u
     z = 1 / a - 1
     Omega_m = OmegaM(c, z)
