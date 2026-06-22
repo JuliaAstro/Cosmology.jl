@@ -1,5 +1,5 @@
-using Cosmology
-using Test, Unitful, UnitfulAstro, QuadGK
+using ParallelTestRunner: runtests, find_tests, parse_args
+import Cosmology
 
 # values from http://icosmos.co.uk/
 
@@ -168,3 +168,11 @@ end
 
 
 
+const init_code = quote
+    # Shared code here
+end
+
+args = parse_args(Base.ARGS)
+testsuite = find_tests(@__DIR__)
+
+runtests(Cosmology, args; testsuite, init_code)

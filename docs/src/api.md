@@ -1,5 +1,8 @@
 ```@meta
-DocTestSetup = :(using Cosmology, Unitful, UnitfulAstro)
+DocTestSetup = quote
+    using Cosmology, Unitful, UnitfulAstro
+    ENV["UNITFUL_FANCY_EXPONENTS"] = false
+end
 ```
 
 # API/Reference
@@ -7,7 +10,7 @@ DocTestSetup = :(using Cosmology, Unitful, UnitfulAstro)
 
 !!! tip "Unitful"
     [Unitful.jl](https://github.com/painterqubits/Unitful.jl) works seamlessly with Cosmology.jl. In order to use its features, make sure it is installed and imported, along with [UnitfulAstro](https://github.com/juliaastro/UnitfulAstro.jl).
-    ```julia
+    ```julia-repl
     pkg> add Unitful UnitfulAstro
     julia> using Unitful, UnitfulAstro
     ```
@@ -26,6 +29,7 @@ angular_diameter_dist
 comoving_radial_dist
 luminosity_dist
 distmod
+hubble_dist
 ```
 
 ### Examples
@@ -62,13 +66,13 @@ julia> c = cosmology(OmegaM=0.26)
 Cosmology.FlatLCDM{Float64}(0.69, 0.7399122024007928, 0.26, 8.77975992071536e-5)
 
 julia> comoving_volume_element(c, 2.1)
-46.74459228888612 Gpc^3
+46.74459228888613 Gpc^3
 
 julia> comoving_volume(c, 0.6)
 49.3633436631307 Gpc^3
 
 julia> comoving_volume(u"ly^3", c, 0.6)
-1.7127035381753e30 ly^3
+1.7127035381752996e30 ly^3
 ```
 
 ## Times
@@ -76,6 +80,7 @@ julia> comoving_volume(u"ly^3", c, 0.6)
 ```@docs
 age
 lookback_time
+hubble_time
 ```
 
 ### Examples
@@ -84,8 +89,20 @@ julia> c = cosmology(OmegaM=0.26)
 Cosmology.FlatLCDM{Float64}(0.69, 0.7399122024007928, 0.26, 8.77975992071536e-5)
 
 julia> age(c, 1.2)
-5.445600787626434 Gyr
+5.4454795007229455 Gyr
 
 julia> lookback_time(u"yr", c, 1.2)
-8.761660748088268e9 yr
+8.761465604385489e9 yr
+```
+
+## Miscellaneous
+```@docs
+H
+scale_factor
+```
+
+
+## Bibliography
+```@bibliography
+Pages = ["api.md"]
 ```
