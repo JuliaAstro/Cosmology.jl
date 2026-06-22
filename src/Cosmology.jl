@@ -349,12 +349,12 @@ function comoving_transverse_dist end
 comoving_transverse_dist(c::AbstractFlatCosmology, z₁, z₂ = nothing; kws...) =
     comoving_radial_dist(c, z₁, z₂; kws...)
 function comoving_transverse_dist(c::AbstractOpenCosmology, z₁, z₂ = nothing; kws...)
-    sqrtok = sqrt(c.Ω_k)
-    return hubble_dist0(c) * sinh(sqrtok * Z(c, z₁, z₂; kws...)) / sqrtok
+    sqrtΩk = sqrt(c.Ω_k)
+    return hubble_dist0(c) * sinh(sqrtΩk * Z(c, z₁, z₂; kws...)) / sqrtΩk
 end
 function comoving_transverse_dist(c::AbstractClosedCosmology, z₁, z₂ = nothing; kws...)
-    sqrtok = sqrt(abs(c.Ω_k))
-    return hubble_dist0(c) * sin(sqrtok * Z(c, z₁, z₂; kws...)) / sqrtok
+    sqrtΩk = sqrt(abs(c.Ω_k))
+    return hubble_dist0(c) * sin(sqrtΩk * Z(c, z₁, z₂; kws...)) / sqrtΩk
 end
 
 """
@@ -402,14 +402,14 @@ comoving_volume(c::AbstractFlatCosmology, z; kws...) =
 function comoving_volume(c::AbstractOpenCosmology, z; kws...)
     DH = hubble_dist0(Gpc, c)
     x = comoving_transverse_dist(Gpc, c, z; kws...) / DH
-    sqrtok = sqrt(c.Ω_k)
-    return 2pi * (DH)^3 * (x * sqrt(1 + c.Ω_k * x^2) - asinh(sqrtok * x) / sqrtok) / c.Ω_k
+    sqrtΩk = sqrt(c.Ω_k)
+    return 2pi * DH^3 * (x * sqrt(1 + c.Ω_k * x^2) - asinh(sqrtΩk * x) / sqrtΩk) / c.Ω_k
 end
 function comoving_volume(c::AbstractClosedCosmology, z; kws...)
     DH = hubble_dist0(Gpc, c)
     x = comoving_transverse_dist(Gpc, c, z; kws...) / DH
-    sqrtok = sqrt(abs(c.Ω_k))
-    return 2pi * (DH)^3 * (x * sqrt(1 + c.Ω_k * x^2) - asin(sqrtok * x) / sqrtok) / c.Ω_k
+    sqrtΩk = sqrt(abs(c.Ω_k))
+    return 2pi * DH^3 * (x * sqrt(1 + c.Ω_k * x^2) - asin(sqrtΩk * x) / sqrtΩk) / c.Ω_k
 end
 
 """
@@ -423,7 +423,7 @@ comoving_volume_element(c::AbstractCosmology, z; kws...) =
 
 # times
 
-T(c::AbstractCosmology, a0, a1; kws...) = quadgk(x -> x / a2E(c, x), a0, a1; kws...)[1]
+T(c::AbstractCosmology, a0, a1; kws...) = quadgk(a -> a / a2E(c, a), a0, a1; kws...)[1]
 
 """
     age([u::Unitlike,] c::AbstractCosmology, z)
