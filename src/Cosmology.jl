@@ -4,7 +4,7 @@ using QuadGK: quadgk
 using Unitful
 import Unitful: km, s, Gyr
 using UnitfulAstro: Mpc, Gpc
-using OrdinaryDiffEqCore
+using OrdinaryDiffEq
 using DocStringExtensions
 
 export cosmology,
