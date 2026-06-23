@@ -146,7 +146,7 @@ and for wCDM models:
 a^2 E(a) = \sqrt{Ω_r + Ω_m a + Ω_k a^2 + Ω_Λ a_{de}}
 ```
 where ``Ω_k = 0`` for a flat cosmological model,
-and ``a_{de} = a^{1 - 3(w_0 + w_a)} \exp(3 w_a (a - 1))``.
+and ``a_{de} = a^{1 - 3(w_0 + w_a)} \exp(3 w_a (a - 1))`` [Scherrer2015](@cite).
 """
 function a2E end
 a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
