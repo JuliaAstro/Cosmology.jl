@@ -63,8 +63,8 @@ for (model, prettyname) in (("LCDM", "ΛCDM"), ("WCDM", "wCDM"))
                 Ω_m::N = Ω_c + Ω_b
                 Ω_Λ::N = 1.0 - Ω_m - Ω_r - Ω_k
             end
-            $(name)(args...) = $(name)(promote(map(float, args)...)...)
-            $(name)(; kwargs...) = $(name)(; promote(map(float, kwargs)...)...)
+            #$(name)(args...) = $(name)(promote(map(float, args)...)...)
+            #$(name)(; kwargs...) = $(name)(; promote(map(float, kwargs)...)...)
         end
     end
     @eval begin
