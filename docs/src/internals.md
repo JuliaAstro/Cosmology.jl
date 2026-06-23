@@ -20,8 +20,13 @@ OpenWCDM
 ```@docs
 E
 Z
+T
 a2E
-a2E(::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
 hubble_dist0
 hubble_time0
+```
+
+## Bibliography
+```@bibliography
+Pages = ["internals.md"]
 ```
