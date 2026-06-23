@@ -22,8 +22,7 @@ export cosmology,
        lookback_time,
        scale_factor,
        f_DE,
-       growth_factor,
-       σ_T, m_H, m_He, m_p
+       growth_factor
 
 """
 $(TYPEDEF)
