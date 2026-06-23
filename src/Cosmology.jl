@@ -35,12 +35,19 @@ abstract type AbstractClosedCosmology <: AbstractCosmology end
 abstract type AbstractFlatCosmology <: AbstractCosmology end
 abstract type AbstractOpenCosmology <: AbstractCosmology end
 
-
-for model in ("LCDM", "WCDM")
-    for curv in ("Flat", "Open", "Closed")
+# define all the ΛCDM and wCDM models, the latter of which includes a
+# cosmological equation of state parameter w.
+for (model, prettyname) in (("LCDM", "ΛCDM"), ("WCDM", "wCDM"))
+    for (curv, k_constraint) in (("Flat", " = 0"), ("Open", "> 0"), ("Closed", "< 0"))
         name = Symbol("$(curv)$(model)")
+        ParentType = Symbol("Abstract$(curv)Cosmology")
         @eval begin
-            Base.@kwdef struct $(name){N <: Real} <: $(Symbol("Abstract$(curv)Cosmology"))
+            """
+            $(TYPEDEF)
+
+            $($prettyname) model of the universe with ``Ω_k $($k_constraint)``.
+            """
+            Base.@kwdef struct $(name){N <: Real} <: $(ParentType)
                 h::N = 0.67
                 Ω_k::N = 0
                 Ω_c::N = 0.3
@@ -59,7 +66,6 @@ for model in ("LCDM", "WCDM")
             end
             $(name)(args...) = $(name)(promote(map(float, args)...)...)
             $(name)(; kwargs...) = $(name)(; promote(map(float, kwargs)...)...)
-
         end
     end
     @eval begin
@@ -86,91 +92,6 @@ for model in ("LCDM", "WCDM")
         end
     end
 end
-"""
-$(TYPEDEF)
-
-wCDM model of the universe with ``Ω_k = 0``.
-"""
-struct FlatWCDM{T <: Real} <: AbstractFlatCosmology
-    h::T
-    Ω_Λ::T
-    Ω_m::T
-    Ω_r::T
-    w0::T
-    wa::T
-end
-FlatWCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real, w0::Real, wa::Real) =
-    FlatWCDM(promote(float(h), float(Ω_Λ), float(Ω_m), float(Ω_r), float(w0), float(wa))...)
-
-# define open and closed ΛCDM and wCDM models, the latter of which includes a
-# cosmological equation of state parameter w.
-for (c, k_constraint) in (("Open", "> 0"), ("Closed", "< 0"))
-    LCDMname = Symbol("$(c)LCDM")
-    WCDMname = Symbol("$(c)WCDM")
-    ParentType = Symbol("Abstract$(c)Cosmology")
-    @eval begin
-        """
-        $(TYPEDEF)
-
-        ΛCDM model of the universe with ``Ω_k $($k_constraint)``.
-        """
-        struct $(LCDMname){T <: Real} <: $(ParentType)
-            h::T
-            Ω_k::T
-            Ω_Λ::T
-            Ω_m::T
-            Ω_r::T
-        end
-        $(LCDMname)(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
-            $(LCDMname)(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m), float(Ω_r))...)
-
-        """
-        $(TYPEDEF)
-
-        wCDM model of the universe with ``Ω_k $($k_constraint)``.
-        """
-        struct $(WCDMname){T <: Real} <: $(ParentType)
-            h::T
-            Ω_k::T
-            Ω_Λ::T
-            Ω_m::T
-            Ω_r::T
-            w0::T
-            wa::T
-        end
-        function $(WCDMname)(
-                h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real,
-                w0::Real, wa::Real
-            )
-            return $(WCDMname)(
-                promote(
-                    float(h), float(Ω_k), float(Ω_Λ), float(Ω_m), float(Ω_r),
-                    float(w0), float(wa)
-                )...
-            )
-        end
-    end
-end
-
-function LCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real)
-    if Ω_k < 0
-        return ClosedLCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r)
-    elseif Ω_k > 0
-        return OpenLCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r)
-    else
-        return FlatLCDM(h, Ω_Λ, Ω_m, Ω_r)
-    end
-end
-
-function WCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real, w0::Real, wa::Real)
-    if Ω_k < 0
-        return ClosedWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
-    elseif Ω_k > 0
-        return OpenWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
-    else
-        return FlatWCDM(h, Ω_Λ, Ω_m, Ω_r, w0, wa)
-    end
-end
 
 @doc raw"""
     a2E(c::AbstractCosmology, a)
@@ -194,18 +115,7 @@ function a2E(c::Union{FlatLCDM, ClosedLCDM, OpenLCDM}, a)
     a2 = a * a
     return sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
 end
-a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
-function a2E(c::Union{ClosedLCDM, OpenLCDM}, a)
-    a2 = a * a
-    return sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
-end
-a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
-a2E(c::FlatWCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * ade(c, a))
-function a2E(c::Union{ClosedLCDM, OpenLCDM}, a)
-    a2 = a * a
-    return sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
-end
-function a2E(c::Union{ClosedWCDM, OpenWCDM}, a)
+function a2E(c::Union{FlatWCDM, ClosedWCDM, OpenWCDM}, a)
     return sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade(c, a))
 end
 
