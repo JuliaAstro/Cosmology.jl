@@ -25,3 +25,8 @@ a2E
 hubble_dist0
 hubble_time0
 ```
+
+## Bibliography
+```@bibliography
+Pages = ["internals.md"]
+```
