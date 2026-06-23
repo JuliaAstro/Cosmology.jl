@@ -103,8 +103,8 @@ for (c, k_constraint) in (("Open", "> 0"), ("Closed", "< 0"))
             )
             return $(WCDMname)(
                 promote(
-                    float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
-                    float(Ω_r), float(w0), float(wa)
+                    float(h), float(Ω_k), float(Ω_Λ), float(Ω_m), float(Ω_r),
+                    float(w0), float(wa)
                 )...
             )
         end
@@ -137,13 +137,16 @@ end
 Calculates the intermediate quantity ``a^2 E(a)``.
 This is an internal function used to simplify computation.
 
-Mathematical definition:
+Mathematical definition for ΛCDM models:
 ```math
-a^2 E(a) = \sqrt{Ω_r + Ω_m a + Ω_k a^2 + Ω_Λ b}
+a^2 E(a) = \sqrt{Ω_r + Ω_m a + Ω_k a^2 + Ω_Λ a^4}
+```
+and for wCDM models:
+```math
+a^2 E(a) = \sqrt{Ω_r + Ω_m a + Ω_k a^2 + Ω_Λ a_{de}}
 ```
 where ``Ω_k = 0`` for a flat cosmological model,
-and ``b = a^4`` for ΛCDM models
-and ``b = a_{de} = a^{1 - 3(w_0 + w_a)} \exp(3 w_a (a - 1))`` for wCDM models.
+and ``a_{de} = a^{1 - 3(w_0 + w_a)} \exp(3 w_a (a - 1))``.
 """
 function a2E end
 a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
@@ -221,14 +224,14 @@ function cosmology(;
     end
 end
 
-# hubble rate
+# Hubble rate
 
 """
     scale_factor(z)
 
 Return the scale factor ``a(t)`` for a given redshift ``z(t)``. According to the
 [Friedmann–Lemaître–Robertson–Walker metric](https://en.wikipedia.org/wiki/Friedmann–Lemaître–Robertson–Walker_metric)
-it's given as ``a = 1/(1 + z)`` ([Schneider 2015, p. 186](@cite schneider2015)).
+it's given as ``a = 1/(1 + z)`` ([Schneider 2015, p. 186](@cite Schneider2015)).
 
 A scale factor of 1, i.e., a redshift of 0, refers to the present epoch.
 """
@@ -242,7 +245,7 @@ Dimensionless Hubble function ``E(z)`` at redshift `z`. It's defined as
 E(z) ≡ \frac{H(z)}{H_0} = \frac{H(z)}{(100\mathrm{km/s/Mpc}) h}
 ```
 where ``H_0 = H(z=0)`` is the Hubble parameter at the present epoch
-([Schneider 2015, p. 183](@cite schneider2015)).
+([Schneider 2015, p. 183](@cite Schneider2015)).
 """
 E(c::AbstractCosmology, z) = (a = scale_factor(z); a2E(c, a) / a^2)
 
@@ -333,7 +336,7 @@ the present epoch and, ``Z = \int_{z_1}^{z_2} \frac{dz}{E(z)}``.
 function comoving_radial_dist end
 comoving_radial_dist(c::AbstractCosmology, z₁, z₂ = nothing; kws...) = hubble_dist0(c) * Z(c, z₁, z₂; kws...)
 
-@doc raw"""
+"""
     comoving_transverse_dist([u::Unitlike,] c::AbstractCosmology, [z₁,] z₂)
 
 Comoving transverse distance (``D_C``) in Mpc at redshift `z₂` as seen by an observer at `z₁`.
@@ -423,6 +426,16 @@ comoving_volume_element(c::AbstractCosmology, z; kws...) =
 
 # times
 
+@doc raw"""
+    T(c::AbstractCosmology, a0, a1; kws...)
+
+The line-of-sight contributions for lookback time.
+
+It performs the integral
+```math
+T = \int_{a_0}^{a_1} \frac{da}{a E(a)}
+```
+"""
 T(c::AbstractCosmology, a0, a1; kws...) = quadgk(a -> a / a2E(c, a), a0, a1; kws...)[1]
 
 """
