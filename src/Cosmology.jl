@@ -48,13 +48,13 @@ for (model, prettyname) in (("LCDM", "ΛCDM"), ("WCDM", "wCDM"))
             """
             Base.@kwdef struct $(name){N <: Real} <: $(ParentType)
                 h::N = 0.67
-                Ω_k::N = 0
+                Ω_k::N = 0.0
                 Ω_c::N = 0.3
-                Ω_b::N = 0
+                Ω_b::N = 0.0
                 Neff::N = 3.04
                 Tcmb::N = 2.755
-                w0::N = -1
-                wa::N = 0
+                w0::N = -1.0
+                wa::N = 0.0
 
                 # Derived densities
                 Ω_γ::N = 4.48131e-7 * Tcmb^4 / h^2
@@ -63,7 +63,9 @@ for (model, prettyname) in (("LCDM", "ΛCDM"), ("WCDM", "wCDM"))
                 Ω_m::N = Ω_c + Ω_b
                 Ω_Λ::N = 1.0 - Ω_m - Ω_r - Ω_k
             end
-            #$(name)(args...) = $(name)(promote(map(float, args)...)...)
+            function $(name)(h, Ω_k, Ω_c, Ω_b, Neff, Tcmb, w0, wa, Ω_γ, Ω_ν, Ω_r, Ω_m, Ω_Λ)
+                return $(name)(promote(h, Ω_k, Ω_c, Ω_b, Neff, Tcmb, w0, wa, Ω_γ, Ω_ν, Ω_r, Ω_m, Ω_Λ)...)
+            end
             #$(name)(; kwargs...) = $(name)(; promote(map(float, kwargs)...)...)
         end
     end
