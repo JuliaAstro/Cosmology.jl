@@ -463,11 +463,11 @@ function growth_derivatives!(du, u, c, a)
     return du
 end
 
+"""
+Returns growth factors and rates at scale factor a
+Returns: D1(a), D1′(a), D1''(a), D2(a), D2′(a), D2''(a)
+"""
 function growth_factor(c::AbstractCosmology, a::Vector{<:Real})
-    """
-    Returns growth factors and rates at scale factor a
-    Returns: D1(a), D1′(a), D1''(a), D2(a), D2′(a), D2''(a)
-    """
     a0 = 1.0e-2
     aspan = (a0, 1.0)
     a_save = a
