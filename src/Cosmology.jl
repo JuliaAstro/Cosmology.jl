@@ -46,42 +46,42 @@ for model in ("LCDM", "WCDM")
                 Ω_c::N = 0.3
                 Ω_b::N = 0
                 Neff::N = 3.04
-                T_cmb::N = 2.755
+                Tcmb::N = 2.755
                 w0::N = -1
                 wa::N = 0
 
                 # Derived densities
-                Ω_γ::N = 4.48131e-7 * T_cmb^4 / h^2
+                Ω_γ::N = 4.48131e-7 * Tcmb^4 / h^2
                 Ω_ν::N = Neff * Ω_γ * (7 / 8) * (4 / 11)^(4 / 3)
                 Ω_r::N = Ω_γ + Ω_ν
                 Ω_m::N = Ω_c + Ω_b
                 Ω_Λ::N = 1.0 - Ω_m - Ω_r - Ω_k
             end
             $(name)(args...) = $(name)(promote(map(float, args)...)...)
-            $(name)(;kwargs...) = $(name)(;promote(map(float, kwargs)...)...)
+            $(name)(; kwargs...) = $(name)(; promote(map(float, kwargs)...)...)
 
         end
     end
     @eval begin
-        function $(Symbol("$model"))(;kwargs...)
+        function $(Symbol("$model"))(; kwargs...)
             kwargs = Dict(kwargs)
             Ω_k = haskey(kwargs, :Ω_k) ? kwargs[:Ω_k] : 0.0
             if Ω_k < 0
-                $(Symbol("Closed$(model)"))(;kwargs...)
+                return $(Symbol("Closed$(model)"))(; kwargs...)
             elseif Ω_k > 0
-                $(Symbol("Open$(model)"))(;kwargs...)
+                return $(Symbol("Open$(model)"))(; kwargs...)
             else
-                $(Symbol("Flat$(model)"))(;kwargs...)
+                return $(Symbol("Flat$(model)"))(; kwargs...)
             end
         end
         function $(Symbol("$model"))(args...)
             Ω_k = args[2]
             if Ω_k < 0
-                $(Symbol("Closed$(model)"))(args...)
+                return $(Symbol("Closed$(model)"))(args...)
             elseif Ω_k > 0
-                $(Symbol("Open$(model)"))(args...)
+                return $(Symbol("Open$(model)"))(args...)
             else
-                $(Symbol("Flat$(model)"))(args...)
+                return $(Symbol("Flat$(model)"))(args...)
             end
         end
     end
@@ -152,15 +152,6 @@ for (c, k_constraint) in (("Open", "> 0"), ("Closed", "< 0"))
     end
 end
 
-function a2E(c::Union{FlatLCDM,ClosedLCDM,OpenLCDM}, a)
-    a2 = a * a
-    sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
-end
-a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
-function a2E(c::Union{ClosedLCDM,OpenLCDM}, a)
-    a2 = a * a
-    sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
-end
 function LCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real)
     if Ω_k < 0
         return ClosedLCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r)
@@ -199,6 +190,15 @@ where ``Ω_k = 0`` for a flat cosmological model,
 and ``a_{de} = a^{1 - 3(w_0 + w_a)} \exp(3 w_a (a - 1))`` [Scherrer2015](@cite).
 """
 function a2E end
+function a2E(c::Union{FlatLCDM, ClosedLCDM, OpenLCDM}, a)
+    a2 = a * a
+    return sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
+end
+a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
+function a2E(c::Union{ClosedLCDM, OpenLCDM}, a)
+    a2 = a * a
+    return sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
+end
 a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
 a2E(c::FlatWCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * ade(c, a))
 function a2E(c::Union{ClosedLCDM, OpenLCDM}, a)
@@ -214,8 +214,8 @@ function ade(c::Union{FlatWCDM, ClosedWCDM, OpenWCDM}, a)
     return a^(1 - 3 * (c.w0 + c.wa)) * exp(3 * c.wa * (a - 1))
 end
 
-f_DE(c::Union{FlatLCDM,ClosedLCDM,OpenLCDM}, a) = 0
-f_DE(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a) = (-3 * (1 + c.w0) + 3 * c.wa * ((a - 1) / log(a - 1e-5) - 1))
+f_DE(c::Union{FlatLCDM, ClosedLCDM, OpenLCDM}, a) = 0
+f_DE(c::Union{FlatWCDM, ClosedWCDM, OpenWCDM}, a) = -3 * (1 + c.w0) + 3 * c.wa * ((a - 1) / log(a - 1.0e-5) - 1)
 
 
 """
@@ -252,16 +252,16 @@ Cosmology.ClosedWCDM{Float64}(0.69, -0.1, 0.8099122024007929, 0.29, 8.7797599207
 ```
 """
 function cosmology(;
-       h = 0.69,
-       Neff = 3.04,
-       OmegaK = 0,
-       OmegaM = nothing,
-       OmegaR = nothing,
-       OmegaC = 0.25,
-       OmegaB = 0.05,
-       Tcmb = 2.7255,
-       w0 = -1,
-       wa = 0
+        h = 0.69,
+        Neff = 3.04,
+        OmegaK = 0,
+        OmegaM = nothing,
+        OmegaR = nothing,
+        OmegaC = 0.25,
+        OmegaB = 0.05,
+        Tcmb = 2.7255,
+        w0 = -1,
+        wa = 0
     )
 
     if !(OmegaR === nothing)
@@ -276,9 +276,9 @@ function cosmology(;
 
 
     if !(w0 == -1 && wa == 0)
-        return WCDM(; h, Ω_k = OmegaK, Ω_c = OmegaC, Ω_b = OmegaB, Neff, T_cmb = Tcmb, w0, wa)
+        return WCDM(; h, Ω_k = OmegaK, Ω_c = OmegaC, Ω_b = OmegaB, Neff, Tcmb, w0, wa)
     else
-        return LCDM(; h, Ω_k = OmegaK, Ω_c = OmegaC, Ω_b = OmegaB, Neff, T_cmb = Tcmb, w0, wa)
+        return LCDM(; h, Ω_k = OmegaK, Ω_c = OmegaC, Ω_b = OmegaB, Neff, Tcmb, w0, wa)
     end
 
 end
@@ -557,28 +557,28 @@ function growth_factor(c::AbstractCosmology, a::Vector{<:Real})
     Returns growth factors and rates at scale factor a
     Returns: D1(a), D1′(a), D1''(a), D2(a), D2′(a), D2''(a)
     """
-    a0 = 1e-2
+    a0 = 1.0e-2
     aspan = (a0, 1.0)
     a_save = a
     push!(a_save, 1.0)
     D1_in = a0 # EdS conditions
-    D1′_in = 1.
-    D2_in = -3. * D1_in^2 / 7 # Approx eq. 1.119 at tau = 0, Eds implies Om = 1
-    D2′_in = -6* D1_in / 7
+    D1′_in = 1.0
+    D2_in = -3.0 * D1_in^2 / 7 # Approx eq. 1.119 at tau = 0, Eds implies Om = 1
+    D2′_in = -6 * D1_in / 7
     u0 = [D1_in, D1′_in, D2_in, D2′_in]
-    prob = ODEProblem(growth_derivatives!,u0,aspan,c)
+    prob = ODEProblem(growth_derivatives!, u0, aspan, c)
     sol = solve(prob, saveat = a_save)
-    D1 = sol[1,:] ./ sol[1,end]
-    D1′ = sol[2,:] ./ sol[1,end]
-    D2 = sol[3,:] ./ sol[3,end]
-    D2′ = sol[4,:] ./ sol[1,end]
+    D1 = sol[1, :] ./ sol[1, end]
+    D1′ = sol[2, :] ./ sol[1, end]
+    D2 = sol[3, :] ./ sol[3, end]
+    D2′ = sol[4, :] ./ sol[1, end]
     du = similar(u0)
     D1′′ = similar(a_save)
     D2′′ = similar(a_save)
     for i in eachindex(a_save)
-        growth_derivatives!(du, sol[:,i], c, a_save[i])
-        D1′′[i] = du[2] / sol[1,end]
-        D2′′[i] = du[4] / sol[3,end]
+        growth_derivatives!(du, sol[:, i], c, a_save[i])
+        D1′′[i] = du[2] / sol[1, end]
+        D2′′[i] = du[4] / sol[3, end]
     end
     return D1, D1′, D1′′, D2, D2′, D2′′
 end

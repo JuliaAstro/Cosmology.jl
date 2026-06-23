@@ -9,7 +9,8 @@ DocMeta.setdocmeta!(Cosmology, :DocTestSetup, :(using Cosmology); recursive = tr
 include("pages.jl")
 
 bib = CitationBibliography(
-    joinpath(@__DIR__, "src", "refs.bib"); style = :authoryear)
+    joinpath(@__DIR__, "src", "refs.bib"); style = :authoryear
+)
 
 makedocs(;
     modules = [Cosmology],
