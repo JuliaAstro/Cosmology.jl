@@ -27,6 +27,7 @@ cosmology
 ```@docs
 angular_diameter_dist
 comoving_radial_dist
+comoving_transverse_dist
 luminosity_dist
 distmod
 hubble_dist
