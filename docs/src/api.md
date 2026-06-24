@@ -37,7 +37,7 @@ hubble_dist
 
 ```jldoctest
 julia> c = cosmology(OmegaM=0.26)
-Cosmology.FlatLCDM{Float64}(0.69, 0.7399122024007928, 0.26, 8.77975992071536e-5)
+Cosmology.LCDM{Float64}(0.69, 0.0, 0.7399122024007928, 0.26, 8.77975992071536e-5)
 
 julia> angular_diameter_dist(c, 1.2)
 1784.0089227105113 Mpc
@@ -64,7 +64,7 @@ comoving_volume
 
 ```jldoctest
 julia> c = cosmology(OmegaM=0.26)
-Cosmology.FlatLCDM{Float64}(0.69, 0.7399122024007928, 0.26, 8.77975992071536e-5)
+Cosmology.LCDM{Float64}(0.69, 0.0, 0.7399122024007928, 0.26, 8.77975992071536e-5)
 
 julia> comoving_volume_element(c, 2.1)
 46.74459228888613 Gpc^3
@@ -87,7 +87,7 @@ hubble_time
 ### Examples
 ```jldoctest
 julia> c = cosmology(OmegaM=0.26)
-Cosmology.FlatLCDM{Float64}(0.69, 0.7399122024007928, 0.26, 8.77975992071536e-5)
+Cosmology.LCDM{Float64}(0.69, 0.0, 0.7399122024007928, 0.26, 8.77975992071536e-5)
 
 julia> age(c, 1.2)
 5.4454795007229455 Gyr
