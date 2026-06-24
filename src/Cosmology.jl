@@ -46,7 +46,7 @@ LCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
 """
 $(TYPEDEF)
 
-wCDM model of the universe.
+wCDM model of the universe, which includes a cosmological equation of state parameter w.
 """
 struct WCDM{T <: Real} <: AbstractCosmology
     h::T
