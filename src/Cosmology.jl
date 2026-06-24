@@ -66,7 +66,6 @@ function WCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real, w0::Real
     )
 end
 
-
 @doc raw"""
     a2E(c::AbstractCosmology, a)
 
