@@ -8,12 +8,8 @@ The following types and methods are internal, and should not be considered safe 
 ## Types
 ```@docs
 AbstractCosmology
-FlatLCDM
-ClosedLCDM
-OpenLCDM
-FlatWCDM
-ClosedWCDM
-OpenWCDM
+LCDM
+WCDM
 ```
 
 ## Methods
