@@ -4,6 +4,7 @@ using QuadGK: quadgk
 using Unitful
 import Unitful: km, s, Gyr
 using UnitfulAstro: Mpc, Gpc
+using OrdinaryDiffEq
 using DocStringExtensions
 
 export cosmology,
@@ -19,7 +20,9 @@ export cosmology,
        hubble_time,
        luminosity_dist,
        lookback_time,
-       scale_factor
+       scale_factor,
+       f_DE,
+       growth_factor
 
 """
 $(TYPEDEF)
@@ -28,6 +31,38 @@ Abstract supertype for all cosmological models.
 """
 abstract type AbstractCosmology end
 
+# define all the ΛCDM and wCDM models, the latter of which includes a
+# cosmological equation of state parameter w.
+for (model, prettyname) in (("LCDM", "ΛCDM"), ("WCDM", "wCDM"))
+    @eval begin
+        """
+        $(TYPEDEF)
+
+        $($prettyname) model of the universe.
+        """
+        Base.@kwdef struct $model{T <: Real} <: AbstractCosmology
+            h::T = 0.67
+            Ω_k::T = 0.0
+            Ω_c::T = 0.3
+            Ω_b::T = 0.0
+            Neff::T = 3.04
+            Tcmb::T = 2.755
+            w0::T = -1.0
+            wa::T = 0.0
+
+            # Derived densities
+            Ω_γ::T = 4.48131e-7 * Tcmb^4 / h^2
+            Ω_ν::T = Neff * Ω_γ * (7 / 8) * (4 / 11)^(4 / 3)
+            Ω_r::T = Ω_γ + Ω_ν
+            Ω_m::T = Ω_c + Ω_b
+            Ω_Λ::T = 1.0 - Ω_m - Ω_r - Ω_k
+        end
+        function $model(h, Ω_k, Ω_c, Ω_b, Neff, Tcmb, w0, wa, Ω_γ, Ω_ν, Ω_r, Ω_m, Ω_Λ)
+            return $model(promote(h, Ω_k, Ω_c, Ω_b, Neff, Tcmb, w0, wa, Ω_γ, Ω_ν, Ω_r, Ω_m, Ω_Λ)...)
+        end
+        #$model(; kwargs...) = $model(; promote(map(float, kwargs)...)...)
+    end
+end
 """
 $(TYPEDEF)
 
@@ -93,6 +128,9 @@ a2E(c::WCDM, a) = sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade(c, a))
 # dark energy scale factor
 ade(c::WCDM, a) = a^(1 - 3 * (c.w0 + c.wa)) * exp(3 * c.wa * (a - 1))
 
+f_DE(c::Union{FlatLCDM, ClosedLCDM, OpenLCDM}, a) = 0
+f_DE(c::Union{FlatWCDM, ClosedWCDM, OpenWCDM}, a) = -3 * (1 + c.w0) + 3 * c.wa * ((a - 1) / log(a - 1.0e-5) - 1)
+
 
 """
     cosmology(; h = 0.69,
@@ -131,26 +169,32 @@ function cosmology(;
         h = 0.69,
         Neff = 3.04,
         OmegaK = 0,
-        OmegaM = 0.29,
+        OmegaM = nothing,
         OmegaR = nothing,
+        OmegaC = 0.25,
+        OmegaB = 0.05,
         Tcmb = 2.7255,
         w0 = -1,
         wa = 0
     )
 
-    if OmegaR === nothing
-        OmegaG = 4.48131e-7 * Tcmb^4 / h^2
-        OmegaN = Neff * OmegaG * (7 / 8) * (4 / 11)^(4 / 3)
-        OmegaR = OmegaG + OmegaN
+    if !(OmegaR === nothing)
+        Tcmb = 0.0
+        Neff = 0.0
     end
 
-    OmegaL = 1 - OmegaK - OmegaM - OmegaR
+    if !(OmegaM === nothing)
+        OmegaC = OmegaM
+        OmegaB = 0.0
+    end
+
 
     if !(w0 == -1 && wa == 0)
-        return WCDM(h, OmegaK, OmegaL, OmegaM, OmegaR, w0, wa)
+        return WCDM(; h, Ω_k = OmegaK, Ω_c = OmegaC, Ω_b = OmegaB, Neff, Tcmb, w0, wa)
     else
-        return LCDM(h, OmegaK, OmegaL, OmegaM, OmegaR)
+        return LCDM(; h, Ω_k = OmegaK, Ω_c = OmegaC, Ω_b = OmegaB, Neff, Tcmb, w0, wa)
     end
+
 end
 
 # Hubble rate
@@ -394,4 +438,61 @@ for f in (
     @eval $f(u::Unitful.Unitlike, args...; kws...) = uconvert(u, $f(args...; kws...))
 end
 
+# Density evolution
+
+OmegaM(c::AbstractCosmology, z) = c.Ω_m * (1 + z)^3 / E(c, z)^2
+OmegaDE(c::AbstractCosmology, z) = c.Ω_Λ * scale_factor(z)^f_DE(c, scale_factor(z)) / E(c, z)^2
+
+
+# Growth of structure
+
+function growth_derivatives!(du, u, c, a)
+    # Ex 1.118 in Leclerq's thesis shows the equation
+    # satisfied by the second order growth factor
+
+    D_1, D_1′, D_2, D_2′ = u
+    z = 1 / a - 1
+    Omega_m = OmegaM(c, z)
+    Omega_de = OmegaDE(c, z)
+
+    D_1′′ = 1.5 * Omega_m * D_1 / a^2 - (Omega_de - 0.5 * Omega_m + 2) * D_1′ / a
+    D_2′′ = 1.5 * Omega_m * (D_2 - D_1^2) / a^2 - (Omega_de - 0.5 * Omega_m + 2) * D_2′ / a
+
+    du[1] = D_1′
+    du[2] = D_1′′
+    du[3] = D_2′
+    du[4] = D_2′′
+    return du
+end
+
+"""
+Returns growth factors and rates at scale factor a
+Returns: D1(a), D1′(a), D1''(a), D2(a), D2′(a), D2''(a)
+"""
+function growth_factor(c::AbstractCosmology, a::Vector{<:Real})
+    a0 = 1.0e-2
+    aspan = (a0, 1.0)
+    a_save = a
+    push!(a_save, 1.0)
+    D1_in = a0 # EdS conditions
+    D1′_in = 1.0
+    D2_in = -3.0 * D1_in^2 / 7 # Approx eq. 1.119 at tau = 0, Eds implies Om = 1
+    D2′_in = -6 * D1_in / 7
+    u0 = [D1_in, D1′_in, D2_in, D2′_in]
+    prob = ODEProblem(growth_derivatives!, u0, aspan, c)
+    sol = solve(prob, saveat = a_save)
+    D1 = sol[1, :] ./ sol[1, end]
+    D1′ = sol[2, :] ./ sol[1, end]
+    D2 = sol[3, :] ./ sol[3, end]
+    D2′ = sol[4, :] ./ sol[1, end]
+    du = similar(u0)
+    D1′′ = similar(a_save)
+    D2′′ = similar(a_save)
+    for i in eachindex(a_save)
+        growth_derivatives!(du, sol[:, i], c, a_save[i])
+        D1′′[i] = du[2] / sol[1, end]
+        D2′′[i] = du[4] / sol[3, end]
+    end
+    return D1, D1′, D1′′, D2, D2′, D2′′
+end
 end # module
