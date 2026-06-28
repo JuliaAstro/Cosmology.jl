@@ -34,14 +34,14 @@ $(TYPEDEF)
 ΛCDM model of the universe.
 """
 struct LCDM{T <: Real} <: AbstractCosmology
-    h::T
-    Ω_k::T
-    Ω_Λ::T
-    Ω_m::T
-    Ω_r::T
+    h0::T
+    Ω_k0::T
+    Ω_Λ0::T
+    Ω_m0::T
+    Ω_r0::T
 end
-LCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
-    LCDM(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m), float(Ω_r))...)
+LCDM(h0::Real, Ω_k0::Real, Ω_Λ0::Real, Ω_m0::Real, Ω_r0::Real) =
+    LCDM(promote(float(h0), float(Ω_k0), float(Ω_Λ0), float(Ω_m0), float(Ω_r0))...)
 
 """
 $(TYPEDEF)
@@ -49,18 +49,18 @@ $(TYPEDEF)
 wCDM model of the universe, which includes a cosmological equation of state parameter w.
 """
 struct WCDM{T <: Real} <: AbstractCosmology
-    h::T
-    Ω_k::T
-    Ω_Λ::T
-    Ω_m::T
-    Ω_r::T
+    h0::T
+    Ω_k0::T
+    Ω_Λ0::T
+    Ω_m0::T
+    Ω_r0::T
     w0::T
     wa::T
 end
-function WCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real, w0::Real, wa::Real)
+function WCDM(h0::Real, Ω_k0::Real, Ω_Λ0::Real, Ω_m0::Real, Ω_r0::Real, w0::Real, wa::Real)
     return WCDM(
         promote(
-            float(h), float(Ω_k), float(Ω_Λ), float(Ω_m), float(Ω_r),
+            float(h0), float(Ω_k0), float(Ω_Λ0), float(Ω_m0), float(Ω_r0),
             float(w0), float(wa),
         )...
     )
@@ -86,9 +86,9 @@ and ``a_{de} = a^{1 - 3(w_0 + w_a)} \exp(3 w_a (a - 1))`` [Scherrer2015](@cite).
 function a2E end
 function a2E(c::LCDM, a)
     a2 = a * a
-    return sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
+    return sqrt(c.Ω_r0 + c.Ω_m0 * a + (c.Ω_k0 + c.Ω_Λ0 * a2) * a2)
 end
-a2E(c::WCDM, a) = sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade(c, a))
+a2E(c::WCDM, a) = sqrt(c.Ω_r0 + (c.Ω_m0 + c.Ω_k0 * a) * a + c.Ω_Λ0 * ade(c, a))
 
 # dark energy scale factor
 ade(c::WCDM, a) = a^(1 - 3 * (c.w0 + c.wa)) * exp(3 * c.wa * (a - 1))
@@ -106,6 +106,9 @@ ade(c::WCDM, a) = a^(1 - 3 * (c.w0 + c.wa)) * exp(3 * c.wa * (a - 1))
 
 
 # Parameters
+
+All cosmological parameters are assumed to be at the present epoch.
+
 * `h` - Dimensionless Hubble constant
 * `Neff` - Effective number of massless neutrino species; used to compute Ω_ν
 * `OmegaK` - Curvature density (Ω_k)
@@ -183,7 +186,7 @@ E(c::AbstractCosmology, z) = (a = scale_factor(z); a2E(c, a) / a^2)
 
 Hubble parameter at redshift `z`.
 """
-H(c::AbstractCosmology, z) = 100 * c.h * E(c, z) * km / s / Mpc
+H(c::AbstractCosmology, z) = 100 * c.h0 * E(c, z) * km / s / Mpc
 
 """
     hubble_dist0(c::AbstractCosmology)
@@ -193,7 +196,7 @@ Hubble distance at redshift 0.
 ### See also
 [`hubble_dist`](@ref)
 """
-hubble_dist0(c::AbstractCosmology) = 2997.92458 / c.h * Mpc
+hubble_dist0(c::AbstractCosmology) = 2997.92458 / c.h0 * Mpc
 """
     hubble_dist(c::AbstractCosmology, z)
 
@@ -213,7 +216,7 @@ Hubble time at redshift 0.
 ### See also
 [`hubble_time`](@ref)
 """
-hubble_time0(c::AbstractCosmology) = 9.777922216807891 / c.h * Gyr
+hubble_time0(c::AbstractCosmology) = 9.777922216807891 / c.h0 * Gyr
 """
     hubble_time(c::AbstractCosmology, z)
 
@@ -278,12 +281,12 @@ It's identical to the comoving radial distance for a flat cosmological model.
 [`comoving_radial_dist`](@ref)
 """
 function comoving_transverse_dist(c::AbstractCosmology, z₁, z₂ = nothing; kws...)
-    if c.Ω_k > 0
-        sqrtΩk = sqrt(c.Ω_k)
-        return hubble_dist0(c) * sinh(sqrtΩk * Z(c, z₁, z₂; kws...)) / sqrtΩk
-    elseif c.Ω_k < 0
-        sqrtΩk = sqrt(abs(c.Ω_k))
-        return hubble_dist0(c) * sin(sqrtΩk * Z(c, z₁, z₂; kws...)) / sqrtΩk
+    if c.Ω_k0 > 0
+        sqrtΩₖ₀ = sqrt(c.Ω_k0)
+        return hubble_dist0(c) * sinh(sqrtΩₖ₀ * Z(c, z₁, z₂; kws...)) / sqrtΩₖ₀
+    elseif c.Ω_k0 < 0
+        sqrtΩₖ₀ = sqrt(abs(c.Ω_k0))
+        return hubble_dist0(c) * sin(sqrtΩₖ₀ * Z(c, z₁, z₂; kws...)) / sqrtΩₖ₀
     else
         return comoving_radial_dist(c, z₁, z₂; kws...)
     end
@@ -329,17 +332,17 @@ distmod(c::AbstractCosmology, z; kws...) =
 Comoving volume in cubic Gpc out to redshift `z`. Will convert to compatible unit `u` if provided.
 """
 function comoving_volume(c::AbstractCosmology, z; kws...)
-    if c.Ω_k == 0
+    if c.Ω_k0 == 0
         return (4pi / 3) * (comoving_radial_dist(Gpc, c, z; kws...))^3
     end
     DH = hubble_dist0(Gpc, c)
     x = comoving_transverse_dist(Gpc, c, z; kws...) / DH
-    if c.Ω_k > 0
-        sqrtΩk = sqrt(c.Ω_k)
-        return 2pi * DH^3 * (x * sqrt(1 + c.Ω_k * x^2) - asinh(sqrtΩk * x) / sqrtΩk) / c.Ω_k
-    else # c.Ω_k < 0
-        sqrtΩk = sqrt(abs(c.Ω_k))
-        return 2pi * DH^3 * (x * sqrt(1 + c.Ω_k * x^2) - asin(sqrtΩk * x) / sqrtΩk) / c.Ω_k
+    if c.Ω_k0 > 0
+        sqrtΩₖ₀ = sqrt(c.Ω_k0)
+        return 2pi * DH^3 * (x * sqrt(1 + c.Ω_k0 * x^2) - asinh(sqrtΩₖ₀ * x) / sqrtΩₖ₀) / c.Ω_k0
+    else # c.Ω_k0 < 0
+        sqrtΩₖ₀ = sqrt(abs(c.Ω_k0))
+        return 2pi * DH^3 * (x * sqrt(1 + c.Ω_k0 * x^2) - asin(sqrtΩₖ₀ * x) / sqrtΩₖ₀) / c.Ω_k0
     end
 end
 
