@@ -30,68 +30,75 @@ $(TYPEDEF)
 Abstract supertype for all cosmological models.
 """
 abstract type AbstractCosmology end
-abstract type AbstractClosedCosmology <: AbstractCosmology end
-abstract type AbstractFlatCosmology <: AbstractCosmology end
-abstract type AbstractOpenCosmology <: AbstractCosmology end
 
 # define all the ΛCDM and wCDM models, the latter of which includes a
 # cosmological equation of state parameter w.
 for (model, prettyname) in (("LCDM", "ΛCDM"), ("WCDM", "wCDM"))
-    for (curv, k_constraint) in (("Flat", " = 0"), ("Open", "> 0"), ("Closed", "< 0"))
-        name = Symbol("$(curv)$(model)")
-        ParentType = Symbol("Abstract$(curv)Cosmology")
-        @eval begin
-            """
-            $(TYPEDEF)
-
-            $($prettyname) model of the universe with ``Ω_k $($k_constraint)``.
-            """
-            Base.@kwdef struct $(name){N <: Real} <: $(ParentType)
-                h::N = 0.67
-                Ω_k::N = 0.0
-                Ω_c::N = 0.3
-                Ω_b::N = 0.0
-                Neff::N = 3.04
-                Tcmb::N = 2.755
-                w0::N = -1.0
-                wa::N = 0.0
-
-                # Derived densities
-                Ω_γ::N = 4.48131e-7 * Tcmb^4 / h^2
-                Ω_ν::N = Neff * Ω_γ * (7 / 8) * (4 / 11)^(4 / 3)
-                Ω_r::N = Ω_γ + Ω_ν
-                Ω_m::N = Ω_c + Ω_b
-                Ω_Λ::N = 1.0 - Ω_m - Ω_r - Ω_k
-            end
-            function $(name)(h, Ω_k, Ω_c, Ω_b, Neff, Tcmb, w0, wa, Ω_γ, Ω_ν, Ω_r, Ω_m, Ω_Λ)
-                return $(name)(promote(h, Ω_k, Ω_c, Ω_b, Neff, Tcmb, w0, wa, Ω_γ, Ω_ν, Ω_r, Ω_m, Ω_Λ)...)
-            end
-            #$(name)(; kwargs...) = $(name)(; promote(map(float, kwargs)...)...)
-        end
-    end
     @eval begin
-        function $(Symbol("$model"))(; kwargs...)
-            kwargs = Dict(kwargs)
-            Ω_k = haskey(kwargs, :Ω_k) ? kwargs[:Ω_k] : 0.0
-            if Ω_k < 0
-                return $(Symbol("Closed$(model)"))(; kwargs...)
-            elseif Ω_k > 0
-                return $(Symbol("Open$(model)"))(; kwargs...)
-            else
-                return $(Symbol("Flat$(model)"))(; kwargs...)
-            end
+        """
+        $(TYPEDEF)
+
+        $($prettyname) model of the universe.
+        """
+        Base.@kwdef struct $model{T <: Real} <: AbstractCosmology
+            h::T = 0.67
+            Ω_k::T = 0.0
+            Ω_c::T = 0.3
+            Ω_b::T = 0.0
+            Neff::T = 3.04
+            Tcmb::T = 2.755
+            w0::T = -1.0
+            wa::T = 0.0
+
+            # Derived densities
+            Ω_γ::T = 4.48131e-7 * Tcmb^4 / h^2
+            Ω_ν::T = Neff * Ω_γ * (7 / 8) * (4 / 11)^(4 / 3)
+            Ω_r::T = Ω_γ + Ω_ν
+            Ω_m::T = Ω_c + Ω_b
+            Ω_Λ::T = 1.0 - Ω_m - Ω_r - Ω_k
         end
-        function $(Symbol("$model"))(args...)
-            Ω_k = args[2]
-            if Ω_k < 0
-                return $(Symbol("Closed$(model)"))(args...)
-            elseif Ω_k > 0
-                return $(Symbol("Open$(model)"))(args...)
-            else
-                return $(Symbol("Flat$(model)"))(args...)
-            end
+        function $model(h, Ω_k, Ω_c, Ω_b, Neff, Tcmb, w0, wa, Ω_γ, Ω_ν, Ω_r, Ω_m, Ω_Λ)
+            return $model(promote(h, Ω_k, Ω_c, Ω_b, Neff, Tcmb, w0, wa, Ω_γ, Ω_ν, Ω_r, Ω_m, Ω_Λ)...)
         end
+        #$model(; kwargs...) = $model(; promote(map(float, kwargs)...)...)
     end
+end
+"""
+$(TYPEDEF)
+
+ΛCDM model of the universe.
+"""
+struct LCDM{T <: Real} <: AbstractCosmology
+    h::T
+    Ω_k::T
+    Ω_Λ::T
+    Ω_m::T
+    Ω_r::T
+end
+LCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
+    LCDM(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m), float(Ω_r))...)
+
+"""
+$(TYPEDEF)
+
+wCDM model of the universe, which includes a cosmological equation of state parameter w.
+"""
+struct WCDM{T <: Real} <: AbstractCosmology
+    h::T
+    Ω_k::T
+    Ω_Λ::T
+    Ω_m::T
+    Ω_r::T
+    w0::T
+    wa::T
+end
+function WCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real, w0::Real, wa::Real)
+    return WCDM(
+        promote(
+            float(h), float(Ω_k), float(Ω_Λ), float(Ω_m), float(Ω_r),
+            float(w0), float(wa),
+        )...
+    )
 end
 
 @doc raw"""
@@ -112,18 +119,14 @@ where ``Ω_k = 0`` for a flat cosmological model,
 and ``a_{de} = a^{1 - 3(w_0 + w_a)} \exp(3 w_a (a - 1))`` [Scherrer2015](@cite).
 """
 function a2E end
-function a2E(c::Union{FlatLCDM, ClosedLCDM, OpenLCDM}, a)
+function a2E(c::LCDM, a)
     a2 = a * a
     return sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
 end
-function a2E(c::Union{FlatWCDM, ClosedWCDM, OpenWCDM}, a)
-    return sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade(c, a))
-end
+a2E(c::WCDM, a) = sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade(c, a))
 
 # dark energy scale factor
-function ade(c::Union{FlatWCDM, ClosedWCDM, OpenWCDM}, a)
-    return a^(1 - 3 * (c.w0 + c.wa)) * exp(3 * c.wa * (a - 1))
-end
+ade(c::WCDM, a) = a^(1 - 3 * (c.w0 + c.wa)) * exp(3 * c.wa * (a - 1))
 
 f_DE(c::Union{FlatLCDM, ClosedLCDM, OpenLCDM}, a) = 0
 f_DE(c::Union{FlatWCDM, ClosedWCDM, OpenWCDM}, a) = -3 * (1 + c.w0) + 3 * c.wa * ((a - 1) / log(a - 1.0e-5) - 1)
@@ -153,13 +156,13 @@ f_DE(c::Union{FlatWCDM, ClosedWCDM, OpenWCDM}, a) = -3 * (1 + c.w0) + 3 * c.wa *
 # Examples
 ```jldoctest
 julia> c = cosmology()
-Cosmology.FlatLCDM{Float64}(0.69, 0.7099122024007928, 0.29, 8.77975992071536e-5)
+Cosmology.LCDM{Float64}(0.69, 0.0, 0.7099122024007928, 0.29, 8.77975992071536e-5)
 
 julia> c = cosmology(OmegaK=0.1)
-Cosmology.OpenLCDM{Float64}(0.69, 0.1, 0.6099122024007929, 0.29, 8.77975992071536e-5)
+Cosmology.LCDM{Float64}(0.69, 0.1, 0.6099122024007929, 0.29, 8.77975992071536e-5)
 
 julia> c = cosmology(w0=-0.9, OmegaK=-0.1)
-Cosmology.ClosedWCDM{Float64}(0.69, -0.1, 0.8099122024007929, 0.29, 8.77975992071536e-5, -0.9, 0.0)
+Cosmology.WCDM{Float64}(0.69, -0.1, 0.8099122024007929, 0.29, 8.77975992071536e-5, -0.9, 0.0)
 ```
 """
 function cosmology(;
@@ -318,16 +321,16 @@ It's identical to the comoving radial distance for a flat cosmological model.
 ### See also
 [`comoving_radial_dist`](@ref)
 """
-function comoving_transverse_dist end
-comoving_transverse_dist(c::AbstractFlatCosmology, z₁, z₂ = nothing; kws...) =
-    comoving_radial_dist(c, z₁, z₂; kws...)
-function comoving_transverse_dist(c::AbstractOpenCosmology, z₁, z₂ = nothing; kws...)
-    sqrtΩk = sqrt(c.Ω_k)
-    return hubble_dist0(c) * sinh(sqrtΩk * Z(c, z₁, z₂; kws...)) / sqrtΩk
-end
-function comoving_transverse_dist(c::AbstractClosedCosmology, z₁, z₂ = nothing; kws...)
-    sqrtΩk = sqrt(abs(c.Ω_k))
-    return hubble_dist0(c) * sin(sqrtΩk * Z(c, z₁, z₂; kws...)) / sqrtΩk
+function comoving_transverse_dist(c::AbstractCosmology, z₁, z₂ = nothing; kws...)
+    if c.Ω_k > 0
+        sqrtΩk = sqrt(c.Ω_k)
+        return hubble_dist0(c) * sinh(sqrtΩk * Z(c, z₁, z₂; kws...)) / sqrtΩk
+    elseif c.Ω_k < 0
+        sqrtΩk = sqrt(abs(c.Ω_k))
+        return hubble_dist0(c) * sin(sqrtΩk * Z(c, z₁, z₂; kws...)) / sqrtΩk
+    else
+        return comoving_radial_dist(c, z₁, z₂; kws...)
+    end
 end
 
 """
@@ -369,20 +372,19 @@ distmod(c::AbstractCosmology, z; kws...) =
 
 Comoving volume in cubic Gpc out to redshift `z`. Will convert to compatible unit `u` if provided.
 """
-function comoving_volume end
-comoving_volume(c::AbstractFlatCosmology, z; kws...) =
-    (4pi / 3) * (comoving_radial_dist(Gpc, c, z; kws...))^3
-function comoving_volume(c::AbstractOpenCosmology, z; kws...)
+function comoving_volume(c::AbstractCosmology, z; kws...)
+    if c.Ω_k == 0
+        return (4pi / 3) * (comoving_radial_dist(Gpc, c, z; kws...))^3
+    end
     DH = hubble_dist0(Gpc, c)
     x = comoving_transverse_dist(Gpc, c, z; kws...) / DH
-    sqrtΩk = sqrt(c.Ω_k)
-    return 2pi * DH^3 * (x * sqrt(1 + c.Ω_k * x^2) - asinh(sqrtΩk * x) / sqrtΩk) / c.Ω_k
-end
-function comoving_volume(c::AbstractClosedCosmology, z; kws...)
-    DH = hubble_dist0(Gpc, c)
-    x = comoving_transverse_dist(Gpc, c, z; kws...) / DH
-    sqrtΩk = sqrt(abs(c.Ω_k))
-    return 2pi * DH^3 * (x * sqrt(1 + c.Ω_k * x^2) - asin(sqrtΩk * x) / sqrtΩk) / c.Ω_k
+    if c.Ω_k > 0
+        sqrtΩk = sqrt(c.Ω_k)
+        return 2pi * DH^3 * (x * sqrt(1 + c.Ω_k * x^2) - asinh(sqrtΩk * x) / sqrtΩk) / c.Ω_k
+    else # c.Ω_k < 0
+        sqrtΩk = sqrt(abs(c.Ω_k))
+        return 2pi * DH^3 * (x * sqrt(1 + c.Ω_k * x^2) - asin(sqrtΩk * x) / sqrtΩk) / c.Ω_k
+    end
 end
 
 """
