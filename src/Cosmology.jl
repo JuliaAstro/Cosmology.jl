@@ -337,7 +337,7 @@ function comoving_volume(c::AbstractCosmology, z; kws...)
     if c.Ω_k > 0
         sqrtΩk = sqrt(c.Ω_k)
         return 2pi * DH^3 * (x * sqrt(1 + c.Ω_k * x^2) - asinh(sqrtΩk * x) / sqrtΩk) / c.Ω_k
-    else c.Ω_k < 0
+    else # c.Ω_k < 0
         sqrtΩk = sqrt(abs(c.Ω_k))
         return 2pi * DH^3 * (x * sqrt(1 + c.Ω_k * x^2) - asin(sqrtΩk * x) / sqrtΩk) / c.Ω_k
     end
