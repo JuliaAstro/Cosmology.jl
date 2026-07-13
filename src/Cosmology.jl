@@ -188,7 +188,7 @@ E(c::AbstractCosmology, z) = (a = scale_factor(z); a2E(c, a) / a^2)
 
 Hubble parameter at redshift `z`.
 """
-H(c::AbstractCosmology, z) = 100 * c.h * E(c, z) * us"km / s / Constants.Mpc"
+H(c::AbstractCosmology, z) = 100 * c.h0 * E(c, z) * us"km / s / Constants.Mpc"
 
 """
     hubble_dist0(c::AbstractCosmology)
@@ -198,7 +198,7 @@ Hubble distance at redshift 0.
 ### See also
 [`hubble_dist`](@ref)
 """
-hubble_dist0(c::AbstractCosmology) = (2997.92458 / c.h) * Mpc
+hubble_dist0(c::AbstractCosmology) = (2997.92458 / c.h0) * Mpc
 """
     hubble_dist(c::AbstractCosmology, z)
 
@@ -218,7 +218,7 @@ Hubble time at redshift 0.
 ### See also
 [`hubble_time`](@ref)
 """
-hubble_time0(c::AbstractCosmology) = (9.777922216807891 / c.h) * Gyr
+hubble_time0(c::AbstractCosmology) = (9.777922216807891 / c.h0) * Gyr
 """
     hubble_time(c::AbstractCosmology, z)
 
@@ -390,16 +390,11 @@ lookback_time(c::AbstractCosmology, z; kws...) = hubble_time0(c) * T(c, scale_fa
 
 # Easily select a different unit
 for f in (
-    :age,
-    :angular_diameter_dist,
-    :comoving_radial_dist,
-    :comoving_transverse_dist,
-    :comoving_volume,
-    :comoving_volume_element,
-    :hubble_dist,
-    :hubble_time,
-    :luminosity_dist,
-    :lookback_time,
+        :hubble_dist0, :hubble_dist, :hubble_time0, :hubble_time,
+        :comoving_radial_dist, :comoving_transverse_dist,
+        :angular_diameter_dist, :luminosity_dist,
+        :comoving_volume, :comoving_volume_element,
+        :age, :lookback_time,
     )
     @eval $f(u::UnionAbstractQuantity, args...; kws...) = uconvert(u, $f(args...; kws...))
 end
