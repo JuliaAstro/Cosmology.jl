@@ -8,17 +8,21 @@ The following types and methods are internal, and should not be considered safe 
 ## Types
 ```@docs
 AbstractCosmology
-FlatLCDM
-ClosedLCDM
-OpenLCDM
+LCDM
+WCDM
 ```
 
 ## Methods
 ```@docs
 E
 Z
+T
 a2E
-a2E(::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
 hubble_dist0
 hubble_time0
+```
+
+## Bibliography
+```@bibliography
+Pages = ["internals.md"]
 ```

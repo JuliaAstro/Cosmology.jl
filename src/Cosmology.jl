@@ -27,124 +27,71 @@ $(TYPEDEF)
 Abstract supertype for all cosmological models.
 """
 abstract type AbstractCosmology end
-abstract type AbstractClosedCosmology <: AbstractCosmology end
-abstract type AbstractFlatCosmology <: AbstractCosmology end
-abstract type AbstractOpenCosmology <: AbstractCosmology end
 
 """
 $(TYPEDEF)
 
-ΛCDM model of the universe with ``Ω_k = 0``.
+ΛCDM model of the universe.
 """
-struct FlatLCDM{T <: Real} <: AbstractFlatCosmology
-    h::T
-    Ω_Λ::T
-    Ω_m::T
-    Ω_r::T
+struct LCDM{T <: Real} <: AbstractCosmology
+    h0::T
+    Ω_k0::T
+    Ω_Λ0::T
+    Ω_m0::T
+    Ω_r0::T
 end
-FlatLCDM(h::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
-    FlatLCDM(promote(float(h), float(Ω_Λ), float(Ω_m), float(Ω_r))...)
-
-"""
-$(TYPEDEF)
-
-ΛCDM model of the universe with ``Ω_k < 0``.
-"""
-struct ClosedLCDM{T <: Real} <: AbstractClosedCosmology
-    h::T
-    Ω_k::T
-    Ω_Λ::T
-    Ω_m::T
-    Ω_r::T
-end
-ClosedLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
-    ClosedLCDM(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
-                       float(Ω_r))...)
+LCDM(h0::Real, Ω_k0::Real, Ω_Λ0::Real, Ω_m0::Real, Ω_r0::Real) =
+    LCDM(promote(float(h0), float(Ω_k0), float(Ω_Λ0), float(Ω_m0), float(Ω_r0))...)
 
 """
 $(TYPEDEF)
 
-ΛCDM model of the universe with ``Ω_k > 0``.
+wCDM model of the universe, which includes a cosmological equation of state parameter w.
 """
-struct OpenLCDM{T <: Real} <: AbstractOpenCosmology
-    h::T
-    Ω_k::T
-    Ω_Λ::T
-    Ω_m::T
-    Ω_r::T
+struct WCDM{T <: Real} <: AbstractCosmology
+    h0::T
+    Ω_k0::T
+    Ω_Λ0::T
+    Ω_m0::T
+    Ω_r0::T
+    w0::T
+    wa::T
 end
-OpenLCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real) =
-    OpenLCDM(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
-                     float(Ω_r))...)
-
-
-# define WCDM models, which includes a cosmological equation of state parameter w.
-for c in ("Flat", "Open", "Closed")
-    name = Symbol("$(c)WCDM")
-    @eval begin
-        struct $(name){T <: Real} <: $(Symbol("Abstract$(c)Cosmology"))
-            h::T
-            Ω_k::T
-            Ω_Λ::T
-            Ω_m::T
-            Ω_r::T
-            w0::T
-            wa::T
-        end
-        function $(name)(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real,
-                         w0::Real, wa::Real)
-            $(name)(promote(float(h), float(Ω_k), float(Ω_Λ), float(Ω_m),
-                            float(Ω_r), float(w0), float(wa))...)
-        end
-    end
+function WCDM(h0::Real, Ω_k0::Real, Ω_Λ0::Real, Ω_m0::Real, Ω_r0::Real, w0::Real, wa::Real)
+    return WCDM(
+        promote(
+            float(h0), float(Ω_k0), float(Ω_Λ0), float(Ω_m0), float(Ω_r0),
+            float(w0), float(wa),
+        )...
+    )
 end
 
-function WCDM(h::Real, Ω_k::Real, Ω_Λ::Real, Ω_m::Real, Ω_r::Real, w0::Real, wa::Real)
-    if Ω_k < 0
-        ClosedWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
-    elseif Ω_k > 0
-        OpenWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
-    else
-        FlatWCDM(h, Ω_k, Ω_Λ, Ω_m, Ω_r, w0, wa)
-    end
-end
-
-a2E(c::FlatLCDM, a) = sqrt(c.Ω_r + c.Ω_m * a + c.Ω_Λ * a^4)
-function a2E(c::Union{ClosedLCDM,OpenLCDM}, a)
-    a2 = a * a
-    sqrt(c.Ω_r + c.Ω_m * a + (c.Ω_k + c.Ω_Λ * a2) * a2)
-end
 @doc raw"""
-    a2E(c::Union{FlatLCDM,ClosedLCDM,OpenLCDM}, a)
-
+    a2E(c::AbstractCosmology, a)
 
 Calculates the intermediate quantity ``a^2 E(a)``.
 This is an internal function used to simplify computation.
 
-Mathematical definition (for ΛCDM models):
+Mathematical definition for ΛCDM models:
 ```math
 a^2 E(a) = \sqrt{Ω_r + Ω_m a + Ω_k a^2 + Ω_Λ a^4}
 ```
-where ``Ω_k = 0`` for a flat cosmological model.
-"""
-a2E
-
-@doc raw"""
-    a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
-
-The implementation of ``a^2 E(a)`` for WCDM models.
-
-Mathematical definition (for WCDM models):
+and for wCDM models:
 ```math
 a^2 E(a) = \sqrt{Ω_r + Ω_m a + Ω_k a^2 + Ω_Λ a_{de}}
 ```
-where ``a_{de} = \exp[(1 - 3 w_0 - 3 w_a) \log(a) + 3 w_a (a - 1)]``.
+where ``Ω_k = 0`` for a flat cosmological model,
+and ``a_{de} = a^{1 - 3(w_0 + w_a)} \exp(3 w_a (a - 1))`` [Scherrer2015](@cite).
 """
-function a2E(c::Union{FlatWCDM,ClosedWCDM,OpenWCDM}, a)
-    # dark energy scale factor
-    ade = exp((1 - 3 * (c.w0 + c.wa)) * log(a) + 3 * c.wa * (a - 1))
-    sqrt(c.Ω_r + (c.Ω_m + c.Ω_k * a) * a + c.Ω_Λ * ade)
+function a2E end
+function a2E(c::LCDM, a)
+    a2 = a * a
+    return sqrt(c.Ω_r0 + c.Ω_m0 * a + (c.Ω_k0 + c.Ω_Λ0 * a2) * a2)
 end
+a2E(c::WCDM, a) = sqrt(c.Ω_r0 + (c.Ω_m0 + c.Ω_k0 * a) * a + c.Ω_Λ0 * ade(c, a))
+
+# dark energy scale factor
+ade(c::WCDM, a) = a^(1 - 3 * (c.w0 + c.wa)) * exp(3 * c.wa * (a - 1))
 
 
 """
@@ -159,6 +106,9 @@ end
 
 
 # Parameters
+
+All cosmological parameters are assumed to be at the present epoch.
+
 * `h` - Dimensionless Hubble constant
 * `Neff` - Effective number of massless neutrino species; used to compute Ω_ν
 * `OmegaK` - Curvature density (Ω_k)
@@ -173,23 +123,25 @@ end
 julia> using Cosmology
 
 julia> c = cosmology()
-Cosmology.FlatLCDM{Float64}(0.69, 0.7099122024007928, 0.29, 8.77975992071536e-5)
+Cosmology.LCDM{Float64}(0.69, 0.0, 0.7099122024007928, 0.29, 8.77975992071536e-5)
 
 julia> c = cosmology(OmegaK=0.1)
-Cosmology.OpenLCDM{Float64}(0.69, 0.1, 0.6099122024007929, 0.29, 8.77975992071536e-5)
+Cosmology.LCDM{Float64}(0.69, 0.1, 0.6099122024007929, 0.29, 8.77975992071536e-5)
 
 julia> c = cosmology(w0=-0.9, OmegaK=-0.1)
-Cosmology.ClosedWCDM{Float64}(0.69, -0.1, 0.8099122024007929, 0.29, 8.77975992071536e-5, -0.9, 0.0)
+Cosmology.WCDM{Float64}(0.69, -0.1, 0.8099122024007929, 0.29, 8.77975992071536e-5, -0.9, 0.0)
 ```
 """
-function cosmology(;h = 0.69,
-                   Neff = 3.04,
-                   OmegaK = 0,
-                   OmegaM = 0.29,
-                   OmegaR = nothing,
-                   Tcmb = 2.7255,
-                   w0 = -1,
-                   wa = 0)
+function cosmology(;
+        h = 0.69,
+        Neff = 3.04,
+        OmegaK = 0,
+        OmegaM = 0.29,
+        OmegaR = nothing,
+        Tcmb = 2.7255,
+        w0 = -1,
+        wa = 0
+    )
 
     if OmegaR === nothing
         OmegaG = 4.48131e-7 * Tcmb^4 / h^2
@@ -201,25 +153,19 @@ function cosmology(;h = 0.69,
 
     if !(w0 == -1 && wa == 0)
         return WCDM(h, OmegaK, OmegaL, OmegaM, OmegaR, w0, wa)
-    end
-
-    if OmegaK < 0
-        return ClosedLCDM(h, OmegaK, OmegaL, OmegaM, OmegaR)
-    elseif OmegaK > 0
-        return OpenLCDM(h, OmegaK, OmegaL, OmegaM, OmegaR)
     else
-        return FlatLCDM(h, OmegaL, OmegaM, OmegaR)
+        return LCDM(h, OmegaK, OmegaL, OmegaM, OmegaR)
     end
 end
 
-# hubble rate
+# Hubble rate
 
 """
     scale_factor(z)
 
 Return the scale factor ``a(t)`` for a given redshift ``z(t)``. According to the
 [Friedmann–Lemaître–Robertson–Walker metric](https://en.wikipedia.org/wiki/Friedmann–Lemaître–Robertson–Walker_metric)
-it's given as ``a = 1/(1 + z)`` ([Schneider 2015, p. 186](@cite schneider2015)).
+it's given as ``a = 1/(1 + z)`` ([Schneider 2015, p. 186](@cite Schneider2015)).
 
 A scale factor of 1, i.e., a redshift of 0, refers to the present epoch.
 """
@@ -233,7 +179,7 @@ Dimensionless Hubble function ``E(z)`` at redshift `z`. It's defined as
 E(z) ≡ \frac{H(z)}{H_0} = \frac{H(z)}{(100\mathrm{km/s/Mpc}) h}
 ```
 where ``H_0 = H(z=0)`` is the Hubble parameter at the present epoch
-([Schneider 2015, p. 183](@cite schneider2015)).
+([Schneider 2015, p. 183](@cite Schneider2015)).
 """
 E(c::AbstractCosmology, z) = (a = scale_factor(z); a2E(c, a) / a^2)
 
@@ -286,10 +232,6 @@ hubble_time(c::AbstractCosmology, z) = hubble_time0(c) / E(c, z)
 
 # distances
 
-Z(c::AbstractCosmology, z::Real, ::Nothing; kws...) =
-    quadgk(a->1 / a2E(c, a), scale_factor(z), 1; kws...)[1]
-Z(c::AbstractCosmology, z₁::Real, z₂::Real; kws...) =
-    quadgk(a->1 / a2E(c, a), scale_factor(z₂), scale_factor(z₁); kws...)[1]
 @doc raw"""
     Z(c::AbstractCosmology, z, nothing; kws...)
     Z(c::AbstractCosmology, z₁, z₂; kws...)
@@ -309,9 +251,11 @@ to `z₁ = 0` (i.e., `a₁ = 1`).
 ### See also
 [`comoving_radial_dist`](@ref)
 """
-Z
-
-comoving_radial_dist(c::AbstractCosmology, z₁, z₂ = nothing; kws...) = hubble_dist0(c) * Z(c, z₁, z₂; kws...)
+function Z end
+Z(c::AbstractCosmology, z::Real, ::Nothing; kws...) =
+    quadgk(a -> 1 / a2E(c, a), scale_factor(z), 1; kws...)[1]
+Z(c::AbstractCosmology, z₁::Real, z₂::Real; kws...) =
+    quadgk(a -> 1 / a2E(c, a), scale_factor(z₂), scale_factor(z₁); kws...)[1]
 
 @doc raw"""
     comoving_radial_dist([u::Unitlike,] c::AbstractCosmology, [z₁,] z₂)
@@ -323,24 +267,32 @@ provided.
 It's calculated as ``D_C = D_{H0} Z``, where ``D_{H0}`` is the Hubble distance at
 the present epoch and, ``Z = \int_{z_1}^{z_2} \frac{dz}{E(z)}``.
 """
-comoving_radial_dist
+function comoving_radial_dist end
+comoving_radial_dist(c::AbstractCosmology, z₁, z₂ = nothing; kws...) = hubble_dist0(c) * Z(c, z₁, z₂; kws...)
 
+"""
+    comoving_transverse_dist([u::Unitlike,] c::AbstractCosmology, [z₁,] z₂)
 
-comoving_transverse_dist(c::AbstractFlatCosmology, z₁, z₂ = nothing; kws...) =
-    comoving_radial_dist(c, z₁, z₂; kws...)
-function comoving_transverse_dist(c::AbstractOpenCosmology, z₁, z₂ = nothing; kws...)
-    sqrtok = sqrt(c.Ω_k)
-    hubble_dist0(c) * sinh(sqrtok * Z(c, z₁, z₂; kws...)) / sqrtok
+Comoving transverse distance (``D_C``) in Mpc at redshift `z₂` as seen by an observer at `z₁`.
+Redshift `z₁` defaults to 0 if omitted.  Will convert to compatible unit `u` if
+provided.
+
+It's identical to the comoving radial distance for a flat cosmological model.
+
+### See also
+[`comoving_radial_dist`](@ref)
+"""
+function comoving_transverse_dist(c::AbstractCosmology, z₁, z₂ = nothing; kws...)
+    if c.Ω_k0 > 0
+        sqrtΩₖ₀ = sqrt(c.Ω_k0)
+        return hubble_dist0(c) * sinh(sqrtΩₖ₀ * Z(c, z₁, z₂; kws...)) / sqrtΩₖ₀
+    elseif c.Ω_k0 < 0
+        sqrtΩₖ₀ = sqrt(abs(c.Ω_k0))
+        return hubble_dist0(c) * sin(sqrtΩₖ₀ * Z(c, z₁, z₂; kws...)) / sqrtΩₖ₀
+    else
+        return comoving_radial_dist(c, z₁, z₂; kws...)
+    end
 end
-function comoving_transverse_dist(c::AbstractClosedCosmology, z₁, z₂ = nothing; kws...)
-    sqrtok = sqrt(abs(c.Ω_k))
-    hubble_dist0(c) * sin(sqrtok * Z(c, z₁, z₂; kws...)) / sqrtok
-end
-
-angular_diameter_dist(c::AbstractCosmology, z; kws...) =
-    comoving_transverse_dist(c, z; kws...) / (1 + z)
-angular_diameter_dist(c::AbstractCosmology, z₁, z₂; kws...) =
-    comoving_transverse_dist(c, z₁, z₂; kws...) / (1 + z₂)
 
 """
     angular_diameter_dist([u::Unitlike,] c::AbstractCosmology, [z₁,] z₂)
@@ -349,10 +301,11 @@ Ratio of the proper transverse size in Mpc of an object at redshift `z₂` to it
 angular size in radians, as seen by an observer at `z₁`.  Redshift `z₁` defaults
 to 0 if omitted.  Will convert to compatible unit `u` if provided.
 """
-angular_diameter_dist
-
-luminosity_dist(c::AbstractCosmology, z; kws...) =
-    comoving_transverse_dist(c, z; kws...) * (1 + z)
+function angular_diameter_dist end
+angular_diameter_dist(c::AbstractCosmology, z; kws...) =
+    comoving_transverse_dist(c, z; kws...) / (1 + z)
+angular_diameter_dist(c::AbstractCosmology, z₁, z₂; kws...) =
+    comoving_transverse_dist(c, z₁, z₂; kws...) / (1 + z₂)
 
 """
     luminosity_dist([u::Unitlike,] c::AbstractCosmology, z)
@@ -360,13 +313,16 @@ luminosity_dist(c::AbstractCosmology, z; kws...) =
 Bolometric luminosity distance in Mpc at redshift `z`. Will convert to
 compatible unit `u` if provided.
 """
-luminosity_dist
+function luminosity_dist end
+luminosity_dist(c::AbstractCosmology, z; kws...) =
+    comoving_transverse_dist(c, z; kws...) * (1 + z)
 
 """
     distmod(c::AbstractCosmology, z)
 
 Distance modulus in magnitudes at redshift `z`.
 """
+function distmod end
 distmod(c::AbstractCosmology, z; kws...) =
     5 * log10(ustrip(Mpc, luminosity_dist(c, z; kws...))) + 25
 
@@ -377,19 +333,19 @@ distmod(c::AbstractCosmology, z; kws...) =
 
 Comoving volume in cubic Gpc out to redshift `z`. Will convert to compatible unit `u` if provided.
 """
-comoving_volume(c::AbstractFlatCosmology, z; kws...) =
-    (4pi / 3) * (comoving_radial_dist(c, z; kws...))^3 |> Gpc^3
-function comoving_volume(c::AbstractOpenCosmology, z; kws...)
-    DH = hubble_dist0(c)
-    x = comoving_transverse_dist(c, z; kws...) / DH
-    sqrtok = sqrt(c.Ω_k)
-    2pi * (DH)^3 * (x * sqrt(1 + c.Ω_k * x^2) - asinh(sqrtok * x) / sqrtok) / c.Ω_k |> Gpc^3
-end
-function comoving_volume(c::AbstractClosedCosmology, z; kws...)
-    DH = hubble_dist0(c)
-    x = comoving_transverse_dist(c, z; kws...) / DH
-    sqrtok = sqrt(abs(c.Ω_k))
-    2pi * (DH)^3 * (x * sqrt(1 + c.Ω_k * x^2) - asin(sqrtok * x) / sqrtok) / c.Ω_k |> Gpc^3
+function comoving_volume(c::AbstractCosmology, z; kws...)
+    if c.Ω_k0 == 0
+        return (4pi / 3) * (comoving_radial_dist(Gpc, c, z; kws...))^3
+    end
+    DH = hubble_dist0(Gpc, c)
+    x = comoving_transverse_dist(Gpc, c, z; kws...) / DH
+    if c.Ω_k0 > 0
+        sqrtΩₖ₀ = sqrt(c.Ω_k0)
+        return 2pi * DH^3 * (x * sqrt(1 + c.Ω_k0 * x^2) - asinh(sqrtΩₖ₀ * x) / sqrtΩₖ₀) / c.Ω_k0
+    else # c.Ω_k0 < 0
+        sqrtΩₖ₀ = sqrt(abs(c.Ω_k0))
+        return 2pi * DH^3 * (x * sqrt(1 + c.Ω_k0 * x^2) - asin(sqrtΩₖ₀ * x) / sqrtΩₖ₀) / c.Ω_k0
+    end
 end
 
 """
@@ -397,18 +353,30 @@ end
 
 Comoving volume element in cubic Gpc out to redshift `z`. Will convert to compatible unit `u` if provided.
 """
+function comoving_volume_element end
 comoving_volume_element(c::AbstractCosmology, z; kws...) =
     hubble_dist0(c) * angular_diameter_dist(c, z; kws...)^2 / a2E(c, scale_factor(z)) |> Gpc^3
 
 # times
 
-T(c::AbstractCosmology, a0, a1; kws...) = quadgk(x->x / a2E(c, x), a0, a1; kws...)[1]
+@doc raw"""
+    T(c::AbstractCosmology, a0, a1; kws...)
+
+The line-of-sight contributions for lookback time.
+
+It performs the integral
+```math
+T = \int_{a_0}^{a_1} \frac{da}{a E(a)}
+```
+"""
+T(c::AbstractCosmology, a0, a1; kws...) = quadgk(a -> a / a2E(c, a), a0, a1; kws...)[1]
 
 """
     age([u::Unitlike,] c::AbstractCosmology, z)
 
 Age of the universe in Gyr at redshift `z`. Will convert to compatible unit `u` if provided.
 """
+function age end
 age(c::AbstractCosmology, z; kws...) = hubble_time0(c) * T(c, 0, scale_factor(z); kws...)
 
 """
@@ -417,6 +385,7 @@ age(c::AbstractCosmology, z; kws...) = hubble_time0(c) * T(c, 0, scale_factor(z)
 Difference between age at redshift 0 and age at redshift `z` in Gyr.
 Will convert to compatible unit `u` if provided.
 """
+function lookback_time end
 lookback_time(c::AbstractCosmology, z; kws...) = hubble_time0(c) * T(c, scale_factor(z), 1; kws...)
 
 # Easily select a different unit
