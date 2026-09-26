@@ -1,9 +1,9 @@
 module Cosmology
 
+using DynamicQuantities: @us_str, UnionAbstractQuantity, ustrip, uconvert
+using DynamicQuantities.SymbolicConstants: Mpc, Gpc
+using DynamicQuantities.SymbolicUnits: Gyr
 using QuadGK: quadgk
-using Unitful
-import Unitful: km, s, Gyr
-using UnitfulAstro: Mpc, Gpc
 using DocStringExtensions
 
 export cosmology,
@@ -120,6 +120,8 @@ All cosmological parameters are assumed to be at the present epoch.
 
 # Examples
 ```jldoctest
+julia> using Cosmology
+
 julia> c = cosmology()
 Cosmology.LCDM{Float64}(0.69, 0.0, 0.7099122024007928, 0.29, 8.77975992071536e-5)
 
@@ -186,7 +188,7 @@ E(c::AbstractCosmology, z) = (a = scale_factor(z); a2E(c, a) / a^2)
 
 Hubble parameter at redshift `z`.
 """
-H(c::AbstractCosmology, z) = 100 * c.h0 * E(c, z) * km / s / Mpc
+H(c::AbstractCosmology, z) = 100 * c.h0 * E(c, z) * us"km / s / Constants.Mpc"
 
 """
     hubble_dist0(c::AbstractCosmology)
@@ -196,7 +198,7 @@ Hubble distance at redshift 0.
 ### See also
 [`hubble_dist`](@ref)
 """
-hubble_dist0(c::AbstractCosmology) = 2997.92458 / c.h0 * Mpc
+hubble_dist0(c::AbstractCosmology) = (2997.92458 / c.h0) * Mpc
 """
     hubble_dist(c::AbstractCosmology, z)
 
@@ -216,7 +218,7 @@ Hubble time at redshift 0.
 ### See also
 [`hubble_time`](@ref)
 """
-hubble_time0(c::AbstractCosmology) = 9.777922216807891 / c.h0 * Gyr
+hubble_time0(c::AbstractCosmology) = (9.777922216807891 / c.h0) * Gyr
 """
     hubble_time(c::AbstractCosmology, z)
 
@@ -322,7 +324,7 @@ Distance modulus in magnitudes at redshift `z`.
 """
 function distmod end
 distmod(c::AbstractCosmology, z; kws...) =
-    5 * log10(luminosity_dist(c, z; kws...) / Mpc) + 25
+    5 * log10(ustrip(Mpc, luminosity_dist(c, z; kws...))) + 25
 
 # volumes
 
@@ -349,11 +351,11 @@ end
 """
     comoving_volume_element([u::Unitlike,] c::AbstractCosmology, z)
 
-Comoving volume element in Gpc out to redshift `z`. Will convert to compatible unit `u` if provided.
+Comoving volume element in cubic Gpc out to redshift `z`. Will convert to compatible unit `u` if provided.
 """
 function comoving_volume_element end
 comoving_volume_element(c::AbstractCosmology, z; kws...) =
-    hubble_dist0(Gpc, c) * angular_diameter_dist(Gpc, c, z; kws...)^2 / a2E(c, scale_factor(z))
+    hubble_dist0(c) * angular_diameter_dist(c, z; kws...)^2 / a2E(c, scale_factor(z)) |> Gpc^3
 
 # times
 
@@ -394,7 +396,7 @@ for f in (
         :comoving_volume, :comoving_volume_element,
         :age, :lookback_time,
     )
-    @eval $f(u::Unitful.Unitlike, args...; kws...) = uconvert(u, $f(args...; kws...))
+    @eval $f(u::UnionAbstractQuantity, args...; kws...) = uconvert(u, $f(args...; kws...))
 end
 
 end # module

@@ -1,6 +1,7 @@
 [deps]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 Cosmology = "76746363-e552-5dba-9a5a-cef6fa9cc5ab"
+DynamicQuantities = "06fc5a27-2a28-4c7c-a15d-362465fb6821"
 ParallelTestRunner = "d3525ed8-44d0-4b2c-a655-542cee43accc"
 QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
