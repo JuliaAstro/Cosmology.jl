@@ -12,7 +12,7 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 UnitfulAstro = "6112ee07-acf9-5e0f-b108-d242c714bf9f"
 
 [compat]
-DocStringExtensions = "0.9"
+DocStringExtensions = "0.9, 0.10"
 QuadGK = "2"
 Unitful = "1.2"
 UnitfulAstro = "1.1"
